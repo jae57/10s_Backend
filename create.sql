@@ -9,7 +9,7 @@ roomID INTEGER,
 userID INTEGER,
 PRIMARY KEY(roomID, userID)
 );
-/* 토큰으로 아이디를 하면 문제의 */1
+/* 토큰으로 아이디를 하면 문제의 */
 CREATE TABLE user(
 ID TEXT PRIMARY KEY,
 email TEXT,
@@ -19,7 +19,7 @@ modifiedDate date,
 statusMessage TEXT
 );
 
-CREATE TABLE friends(
+CREATE TABLE friend(
 userID INTEGER,
 friendID INTEGER,
 PRIMARY KEY (userID, friendID)

@@ -36,7 +36,7 @@ def auth():
             user_email = request.headers['email']
             c.execute("SELECT ID FROM User WHERE email = '{}'".format(user_email))
             auth_token = c.fetchone()
-            return jsonify(auth_token), 200
+            return jsonify({'auth_token' : auth_token}), 200
     
     except TypeError:
         raise
@@ -137,6 +137,7 @@ def friend():
         #add friend
         elif request.method == 'POST':
             user_id = request.headers["Authorization"].split[1]
+            print(user_id)
             body = request.json
             friend_email = body['friend_email']
             c.execute("SELECT ID FROM User WHERE email='{}'".format(friend_email))
@@ -157,7 +158,41 @@ def friend():
 
 @app.route("/profile", methods=["GET", "PUT"])
 def profile():
-    return "profile"
+    try:
+        conn = sqlite3.connect("10s.db")
+        c = conn.cursor()
+
+        # get profile
+        if request.method == 'GET':
+            user_id = request.headers["Authorization"].split[1]
+            c.execute("SELECT * FROM user where id="+user_id)
+            row = c.fetchone()
+            user = {'nickname': row[2], 'status_message': row[3], 'profile_image': row[4] }
+            return json.dumps(user)
+
+        # update profile
+        elif request.method == 'PUT':
+            user_id = request.headers["Authorization"].split[1]
+            body = request.json
+            nickname = body['nickname']
+            status = body['status_message']
+            profile_image = body['profile_image']
+            modified_date = datetime.datetime.now()
+            c.execute("UPDATE user SET nickname = '?', status_message='?', profilepic='?', modifieddate = '?' where id=?",[nickname, status, profile_image, modified_date, user_id])
+            return "user updated", 200
+
+    except KeyError:
+        conn.rollback()
+        raise
+
+    except:
+        print(sys.exc_info()[0])
+        conn.rollback()
+
+    finally:
+        conn.close()
+
+    return "profile_"
     
 
 app.run(port=80, host="0.0.0.0", debug=True)

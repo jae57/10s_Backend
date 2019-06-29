@@ -1,24 +1,32 @@
 from flask import Flask, request, jsonify, json
 import sqlite3
 import datetime
+import sys
 
 app = Flask(__name__)
 
-@app.route("/auth", methods=["GET", "POST"])
+@app.route("/api/auth", methods=["GET", "POST"])
 def auth():
-
+    print("auth")
     try:
-        conn = sqlite3.connect("/root/10s.db")
+        conn = sqlite3.connect("10s.db")
+        print("conn")
         c = conn.cursor()
-    
+        print("cursor")
         #join: addUser
         if request.method == 'POST':
             body = request.json
-            email = body['email']
+            print(body)
+            email = body["email"]
+            print(email)
             auth_token = {'auth_token' : hash(email)}
+            print(auth_token)
             nickname = body['nickname']
+            print(nickname)
             profilepic = body['profile_image']
-            c.execute("INSERT INTO User(ID, email, nickname, profilepic) VALUES (?,?,?,?)", [auth_token, email, nickname, profilepic])
+            print(profilepic)
+            c.execute("INSERT INTO user(id, email, nickname, profilepic, modifiedDate, statusMessage) VALUES (?,?,?,?,?,?)",
+                                [hash(email), email, nickname, profilepic, datetime.datetime.now(), ""])
             conn.commit()
             return jsonify(auth_token), 200
 
@@ -30,20 +38,23 @@ def auth():
             auth_token = c.fetchone()
             return jsonify(auth_token), 200
     
-    except:
-        print("log")
+    except TypeError:
+        raise
         conn.rollback()
+    except:
+        print(sys.exc_info()[0])
+        raise
 
     finally:
         conn.close()
 
-    return "auth"
+    return jsonify(message="ERROR"), 500
 
 
 @app.route("/chatRoom", methods=["GET", "POST", "PUT", "DELETE"])
 def chatRoom():
     try:
-        conn = sqlite3.connect("/root/10s.db")
+        conn = sqlite3.connect("10s.db")
         c = conn.cursor()
 
         #create a chatroom
@@ -99,7 +110,7 @@ def chatRoom():
 
 
     except:
-        print("log")
+        print(sys.exc_info()[0])
         conn.rollback()
 
     finally:
@@ -111,7 +122,7 @@ def chatRoom():
 @app.route("/friend", methods=["GET", "POST"])
 def friend():
     try:
-        conn = sqlite3.connect("/root/10s.db")
+        conn = sqlite3.connect("10s.db")
         c = conn.cursor()
 
         #search friend
@@ -127,7 +138,6 @@ def friend():
         elif request.method == 'POST':
             user_id = request.headers["Authorization"].split[1]
             body = request.json
-            user_id = body['user_id']
             friend_email = body['friend_email']
             c.execute("SELECT ID FROM User WHERE email='{}'".format(friend_email))
             friend_id = c.fetchone()
@@ -136,7 +146,7 @@ def friend():
             return "add friend success", 200
 
     except:
-        print("log")
+        print(sys.exc_info()[0])
         conn.rollback()
 
     finally:

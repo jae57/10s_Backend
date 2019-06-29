@@ -77,7 +77,7 @@ def friend():
     finally:
         conn.close()
 
-    return "friend"
+    return "friend_"
 
 
 @app.route("/profile", methods=["GET", "PUT"])

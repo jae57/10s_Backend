@@ -1,41 +1,11 @@
-from flask import Flask, request
-from data_generator import data
-import sqlite3
+from flask import Flask
 
 
 app = Flask(__name__)
 
+
 @app.route("/auth", methods=["GET", "POST"])
 def auth():
-
-    try:
-        conn = sqlite3.connect("/root/10s.db")
-        c = conn.cursor()
-    
-        #join: addUser
-        if request.method == 'POST'
-            email = request.form['email']
-            nickname = request.form['nickname']
-            profilepic = request.form['profilepic']
-            c.execute("INSERT INTO User(email, nickname, profilepic) VALUES (?,?,?)", [email, nickname, profilepic])
-            conn.commit()
-            return "join success"
-
-
-        #login: getUser
-        elif request.method == 'GET'
-            email = request.form['email']
-            c.execute("SELECT * FROM User WHERE email = '{}'".format(email))
-            user_info = c.fetchall()        
-            return "login success"
-    
-    except:
-        print("log")
-        conn.rollback()
-
-    finally:
-        conn.close()
-
     return "auth"
 
 
@@ -46,7 +16,6 @@ def chatRoom():
 
 @app.route("/friend", methods=["GET", "POST"])
 def friend():
-
     try:
         conn = sqlite3.connect("/root/10s.db")
         c = conn.cursor()

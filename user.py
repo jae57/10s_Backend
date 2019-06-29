@@ -5,5 +5,5 @@ class User:
         self.nickname = nickname # 닉네임은 기본은 원래 이름을 사용한다.
         self.status = status # 상태 - 자기 소개 같은거
         self.profile_image = profile_image 
-        self.auto_token = token
+        self.auto_token = auth_token
         self.auth_type = auth_type

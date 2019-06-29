@@ -36,7 +36,10 @@ def auth():
             user_email = request.headers['email']
             c.execute("SELECT ID FROM User WHERE email = '{}'".format(user_email))
             auth_token = c.fetchone()
-            return jsonify({'auth_token' : auth_token}), 200
+            if auth_token == None:
+                return jsonify({"message":"Not Exist User"}), 400
+            result_json = {'auth_token' : auth_token}
+            return jsonify(result_json), 200
     
     except TypeError:
         raise
@@ -51,7 +54,7 @@ def auth():
     return jsonify(message="ERROR"), 500
 
 
-@app.route("/chatRoom", methods=["GET", "POST", "PUT", "DELETE"])
+@app.route("/api/chatRoom", methods=["GET", "POST", "PUT", "DELETE"])
 def chatRoom():
     try:
         conn = sqlite3.connect("10s.db")
@@ -119,7 +122,7 @@ def chatRoom():
     return "chat room"
 
 
-@app.route("/friend", methods=["GET", "POST"])
+@app.route("/api/friend", methods=["GET", "POST"])
 def friend():
     try:
         conn = sqlite3.connect("10s.db")
@@ -156,7 +159,7 @@ def friend():
     return "friend_"
 
 
-@app.route("/profile", methods=["GET", "PUT"])
+@app.route("/api/profile", methods=["GET", "PUT"])
 def profile():
     try:
         conn = sqlite3.connect("10s.db")
@@ -192,7 +195,7 @@ def profile():
     finally:
         conn.close()
 
-    return "profile_"
+    return "profile"
     
 
 app.run(port=80, host="0.0.0.0", debug=True)

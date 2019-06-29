@@ -1,5 +1,6 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify, json
 import sqlite3
+import datetime
 
 app = Flask(__name__)
 
@@ -12,20 +13,22 @@ def auth():
     
         #join: addUser
         if request.method == 'POST':
-            email = request.form['email']
-            nickname = request.form['nickname']
-            profilepic = request.form['profilepic']
-            c.execute("INSERT INTO User(email, nickname, profilepic) VALUES (?,?,?)", [email, nickname, profilepic])
+            body = request.json
+            email = body['email']
+            auth_token = {'auth_token' : hash(email)}
+            nickname = body['nickname']
+            profilepic = body['profile_image']
+            c.execute("INSERT INTO User(ID, email, nickname, profilepic) VALUES (?,?,?,?)", [auth_token, email, nickname, profilepic])
             conn.commit()
-            return "join success"
+            return jsonify(auth_token), 200
 
 
         #login: getUser
         elif request.method == 'GET':
-            email = request.form['email']
-            c.execute("SELECT * FROM User WHERE email = '{}'".format(email))
-            user_info = c.fetchall()        
-            return "login success"
+            user_email = request.headers['email']
+            c.execute("SELECT ID FROM User WHERE email = '{}'".format(user_email))
+            auth_token = c.fetchone()
+            return jsonify(auth_token), 200
     
     except:
         print("log")
@@ -39,6 +42,69 @@ def auth():
 
 @app.route("/chatRoom", methods=["GET", "POST", "PUT", "DELETE"])
 def chatRoom():
+    try:
+        conn = sqlite3.connect("/root/10s.db")
+        c = conn.cursor()
+
+        #create a chatroom
+        if request.method == 'POST':
+            user_id = request.headers["Authorization"].split[1]
+            body = request.json
+            room_name = body['room_name']
+            time_created = datetime.datetime.now()
+            c.execute("INSERT INTO ChatRoom(RoomName, CreateDate) VALUES (?,?)", [room_name, time_created])
+            conn.commit()
+
+            c.execute("SELECT ID FROM ChatRoom WHERE RoomName = ?", [room_name])
+            room_id = c.fetchone()
+            
+            c.execute("INSERT INTO ChatUser(RoomID, UserID) VALUES (?,?)", [room_id,user_id])
+            conn.commit()
+
+            return "chatroom created", 200
+
+        #get chatroom that user is in
+        elif request.method == 'GET':
+            user_id = request.headers["Authorization"].split[1]
+            c.execute("SELECT RoomID FROM ChatUser WHERE UserID = ?", [user_id])
+            room_id = c.fetchall()
+            
+            return json.dumps(room_id), 200
+
+
+        #delete chatroom
+        elif request.method == 'DELETE':
+            body = request.json
+            room_id = body['room_id']
+            c.execute("DELETE FROM ChatRoom WHERE ID = ?", (room_id,))
+            conn.commit()
+
+            c.execute("DELETE FROM ChatUser WHERE RoomID = ?", (room_id,))
+            conn.commit()
+
+            return "chatroom deleted", 200
+
+
+        #invite friend to chatroom
+        elif request.method == 'PUT':
+            body = request.json
+            room_id = body['room_id']
+            invited_id = body['invited_id']
+            c.execute("INSERT INTO ChatUser(RoomID, UserID) VALUES(?,?)", [room_id, invited_id])
+            conn.commit()
+
+            return "friend invited", 200
+
+
+
+
+    except:
+        print("log")
+        conn.rollback()
+
+    finally:
+        conn.close()
+
     return "chat room"
 
 
@@ -50,22 +116,24 @@ def friend():
 
         #search friend
         if request.method == 'GET':
-            user_id = request.form['user_id']
-            c.execute("SELECT FriendID FROM User WHERE UserID = user_id")
-            friend_info = c.fetchone()[0]
-            conn.commit()
-            return "search friend success"
+            user_id = request.headers["Authorization"].split[1]
+            c.execute("SELECT FriendID FROM User WHERE UserID = ?", [user_id])
+            friend_info = c.fetchone()
+
+            return json.dumps(friend_info), 200
 
 
         #add friend
         elif request.method == 'POST':
-            user_id = request.form['user_id']
-            friend_email = request.form['friend_email']
+            user_id = request.headers["Authorization"].split[1]
+            body = request.json
+            user_id = body['user_id']
+            friend_email = body['friend_email']
             c.execute("SELECT ID FROM User WHERE email='{}'".format(friend_email))
-            friend_id = c.fetchone()[0]
+            friend_id = c.fetchone()
             c.execute("INSERT INTO Friends(UserID, FriendID) VALUES(?,?,?)", [user_id, friend_id])
             conn.commit()
-            return "add friend success"
+            return "add friend success", 200
 
     except:
         print("log")

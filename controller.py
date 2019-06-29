@@ -1,5 +1,4 @@
 from flask import Flask, request
-from data_generator import data
 import sqlite3
 
 
@@ -13,7 +12,7 @@ def auth():
         c = conn.cursor()
     
         #join: addUser
-        if request.method == 'POST'
+        if request.method == 'POST':
             email = request.form['email']
             nickname = request.form['nickname']
             profilepic = request.form['profilepic']
@@ -23,7 +22,7 @@ def auth():
 
 
         #login: getUser
-        elif request.method == 'GET'
+        elif request.method == 'GET':
             email = request.form['email']
             c.execute("SELECT * FROM User WHERE email = '{}'".format(email))
             user_info = c.fetchall()        
@@ -52,7 +51,7 @@ def friend():
         c = conn.cursor()
 
         #search friend
-        if request.method == 'GET'
+        if request.method == 'GET':
             user_id = request.form[user_id]
             c.execute("SELECT FriendID FROM User WHERE UserID = user_id")
             friend_info = c.fetchone()[0]
@@ -61,7 +60,7 @@ def friend():
 
 
         #add friend
-        elif request.method == 'POST'
+        elif request.method == 'POST':
             user_id = request.form['user_id']
             friend_email = request.form['friend_email']
             c.execute("SELECT ID FROM User WHERE email='{}'".format(friend_email))

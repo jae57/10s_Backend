@@ -17,7 +17,7 @@ def auth():
             email = body['email']
             auth_token = {'auth_token' : hash(email)}
             nickname = body['nickname']
-            profilepic = body['profilepic']
+            profilepic = body['profile_image']
             c.execute("INSERT INTO User(ID, email, nickname, profilepic) VALUES (?,?,?,?)", [auth_token, email, nickname, profilepic])
             conn.commit()
             return jsonify(auth_token), 200
@@ -49,8 +49,8 @@ def chatRoom():
 
         #create a chatroom
         if request.method == 'POST':
+            user_id = request.headers["Authorization"].split[1]
             body = request.json
-            user_id = body['user_id']
             room_name = body['room_name']
             time_created = datetime.datetime.now()
             c.execute("INSERT INTO ChatRoom(RoomName, CreateDate) VALUES (?,?)", [room_name, time_created])
@@ -66,11 +66,11 @@ def chatRoom():
 
         #get chatroom that user is in
         elif request.method == 'GET':
-            body = request.json
-            user_id = body['user_id']
-            c.execute("SELECT RoomID FROM ChatUser WHERE UserID = user_id")
+            user_id = request.headers["Authorization"].split[1]
+            c.execute("SELECT RoomID FROM ChatUser WHERE UserID = ?", [user_id])
             room_id = c.fetchall()
 
+            # response 만들기
             return "chatroom fetched", 200
 
 
@@ -91,7 +91,7 @@ def chatRoom():
         elif request.method == 'PUT':
             body = request.json
             room_id = body['room_id']
-            user_id = body['user_id']
+            invited_id = body['invited_id']
             c.execute("INSERT INTO ChatUser(RoomID, UserID) VALUES(?,?)", [room_id, user_id])
             conn.commit()
 
@@ -118,16 +118,18 @@ def friend():
 
         #search friend
         if request.method == 'GET':
-            body = request.json
-            user_id = body['user_id']
+            user_id = request.headers["Authorization"].split[1]
             c.execute("SELECT FriendID FROM User WHERE UserID = user_id")
             friend_info = c.fetchone()
             conn.commit()
+
+            #return 친구 목록 json으로
             return "search friend success", 200
 
 
         #add friend
         elif request.method == 'POST':
+            user_id = request.headers["Authorization"].split[1]
             body = request.json
             user_id = body['user_id']
             friend_email = body['friend_email']

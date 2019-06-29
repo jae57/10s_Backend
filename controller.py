@@ -1,7 +1,6 @@
 from flask import Flask, request
 import sqlite3
 
-
 app = Flask(__name__)
 
 @app.route("/auth", methods=["GET", "POST"])
@@ -45,14 +44,13 @@ def chatRoom():
 
 @app.route("/friend", methods=["GET", "POST"])
 def friend():
-
     try:
         conn = sqlite3.connect("/root/10s.db")
         c = conn.cursor()
 
         #search friend
         if request.method == 'GET':
-            user_id = request.form[user_id]
+            user_id = request.form['user_id']
             c.execute("SELECT FriendID FROM User WHERE UserID = user_id")
             friend_info = c.fetchone()[0]
             conn.commit()

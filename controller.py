@@ -16,17 +16,13 @@ def auth():
         #join: addUser
         if request.method == 'POST':
             body = request.json
-            print(body)
             email = body["email"]
-            print(email)
-            auth_token = {'auth_token' : hash(email)}
-            print(auth_token)
+            token = hash(email)
+            auth_token = {'auth_token' : token}
             nickname = body['nickname']
-            print(nickname)
-            profilepic = body['profile_image']
-            print(profilepic)
-            c.execute("INSERT INTO user(id, email, nickname, profilepic, modifiedDate, statusMessage) VALUES (?,?,?,?,?,?)",
-                                [hash(email), email, nickname, profilepic, datetime.datetime.now(), ""])
+            profile_image = body['profile_image']
+            c.execute("INSERT INTO user(email, nickname, profile_image, modified_date, status_message, auth_token) VALUES (?,?,?,?,?,?)",
+                                [email, nickname, profile_image, datetime.datetime.now(), "", token])
             conn.commit()
             return jsonify(auth_token), 200
 
@@ -34,17 +30,19 @@ def auth():
         #login: getUser
         elif request.method == 'GET':
             user_email = request.headers['email']
-            c.execute("SELECT ID FROM User WHERE email = '{}'".format(user_email))
-            auth_token = c.fetchone()
+            c.execute("SELECT auth_token FROM user WHERE email = '{}'".format(user_email))
+            auth_token = c.fetchone()[0]
             if auth_token == None:
                 return jsonify({"message":"Not Exist User"}), 400
+
             result_json = {'auth_token' : auth_token}
             return jsonify(result_json), 200
     
     except TypeError:
-        raise
         conn.rollback()
+        raise
     except:
+        conn.rollback()
         print(sys.exc_info()[0])
         raise
 
@@ -55,56 +53,56 @@ def auth():
 
 
 @app.route("/api/chatRoom", methods=["GET", "POST", "PUT", "DELETE"])
-def chatRoom():
+def chat_room():
     try:
         conn = sqlite3.connect("10s.db")
         c = conn.cursor()
 
-        #create a chatroom
+        #create a chat_room
         if request.method == 'POST':
             user_id = request.headers["Authorization"].split[1]
             body = request.json
             room_name = body['room_name']
             time_created = datetime.datetime.now()
-            c.execute("INSERT INTO ChatRoom(RoomName, CreateDate) VALUES (?,?)", [room_name, time_created])
+            c.execute("INSERT INTO chat_room(room_name, create_date) VALUES (?,?)", [room_name, time_created])
             conn.commit()
 
-            c.execute("SELECT ID FROM ChatRoom WHERE RoomName = ?", [room_name])
+            c.execute("SELECT id FROM chat_room WHERE room_name = ?", [room_name])
             room_id = c.fetchone()
             
-            c.execute("INSERT INTO ChatUser(RoomID, UserID) VALUES (?,?)", [room_id,user_id])
+            c.execute("INSERT INTO chat_user(room_id, user_id) VALUES (?,?)", [room_id,user_id])
             conn.commit()
 
-            return "chatroom created", 200
+            return "chat_room created", 200
 
-        #get chatroom that user is in
+        #get chat_room that user is in
         elif request.method == 'GET':
             user_id = request.headers["Authorization"].split[1]
-            c.execute("SELECT RoomID FROM ChatUser WHERE UserID = ?", [user_id])
+            c.execute("SELECT room_id FROM chat_user WHERE user_id = ?", [user_id])
             room_id = c.fetchall()
             
             return json.dumps(room_id), 200
 
 
-        #delete chatroom
+        #delete chat_room
         elif request.method == 'DELETE':
             body = request.json
             room_id = body['room_id']
-            c.execute("DELETE FROM ChatRoom WHERE ID = ?", (room_id,))
+            c.execute("DELETE FROM chat_room WHERE id = ?", (room_id,))
             conn.commit()
 
-            c.execute("DELETE FROM ChatUser WHERE RoomID = ?", (room_id,))
+            c.execute("DELETE FROM chat_user WHERE room_id = ?", (room_id,))
             conn.commit()
 
-            return "chatroom deleted", 200
+            return "Chat room deleted", 200
 
 
-        #invite friend to chatroom
+        #invite friend to chat_room
         elif request.method == 'PUT':
             body = request.json
             room_id = body['room_id']
             invited_id = body['invited_id']
-            c.execute("INSERT INTO ChatUser(RoomID, UserID) VALUES(?,?)", [room_id, invited_id])
+            c.execute("INSERT INTO chat_user(room_id, user_id) VALUES(?,?)", [room_id, invited_id])
             conn.commit()
 
             return "friend invited", 200
@@ -130,29 +128,35 @@ def friend():
 
         #search friend
         if request.method == 'GET':
-            user_id = request.headers["Authorization"].split[1]
-            c.execute("SELECT FriendID FROM User WHERE UserID = ?", [user_id])
+            user_id = request.headers["Authorization"].split()[1]
+            c.execute("SELECT friend_id FROM friend WHERE user_id = ?", [user_id])
             friend_info = c.fetchone()
-
+            print(friend_info)
             return json.dumps(friend_info), 200
 
 
         #add friend
         elif request.method == 'POST':
-            user_id = request.headers["Authorization"].split[1]
-            print(user_id)
+            user_id = request.headers["Authorization"].split()[1]
             body = request.json
             friend_email = body['friend_email']
-            c.execute("SELECT ID FROM User WHERE email='{}'".format(friend_email))
-            friend_id = c.fetchone()
-            c.execute("INSERT INTO Friends(UserID, FriendID) VALUES(?,?,?)", [user_id, friend_id])
+            c.execute("SELECT id FROM user WHERE email='{}'".format(friend_email))
+            friend_id = c.fetchone()[0]
+            if friend_id is None:
+                return jsonify({"message":"cannot find friend"}), 400
+
+            c.execute("INSERT INTO friend(user_id, friend_id) VALUES(?,?)", [user_id, friend_id])
             conn.commit()
             return "add friend success", 200
-
+    except sqlite3.OperationalError:
+        conn.rollback()
+        raise
+    except sqlite3.InterfaceError:
+        conn.rollback()
+        raise
     except:
         print(sys.exc_info()[0])
         conn.rollback()
-
     finally:
         conn.close()
 
@@ -169,6 +173,7 @@ def profile():
         if request.method == 'GET':
             user_id = request.headers["Authorization"].split[1]
             c.execute("SELECT * FROM user where id="+user_id)
+            print("ex")
             row = c.fetchone()
             user = {'nickname': row[2], 'status_message': row[3], 'profile_image': row[4] }
             return json.dumps(user)

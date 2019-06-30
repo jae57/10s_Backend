@@ -1,26 +1,27 @@
-CREATE TABLE chatRoom(
+CREATE TABLE chat_room(
 id INTEGER PRIMARY KEY AUTOINCREMENT,
-roomName TEXT,
-createDate date
+room_name TEXT,
+create_date DATE
 );
 
 CREATE TABLE chatUser(
-roomID INTEGER,
-userID INTEGER,
-PRIMARY KEY(roomID, userID)
+room_id INTEGER,
+user_id INTEGER,
+PRIMARY KEY(room_id, user_id)
 );
-/* 토큰으로 아이디를 하면 문제의 */
+/* 토큰은 바뀔 수 있는 값이므로 Pkey는 부적절 */
 CREATE TABLE user(
-ID TEXT PRIMARY KEY,
+id INTEGER PRIMARY KEY AUTOINCREMENT,
 email TEXT,
 nickname TEXT,
-profilepic TEXT,
-modifiedDate date,
-statusMessage TEXT
+profile_image TEXT,
+modified_date DATE,
+status_message TEXT,
+auth_token TEXT
 );
 
 CREATE TABLE friend(
-userID INTEGER,
-friendID INTEGER,
-PRIMARY KEY (userID, friendID)
+user_id INTEGER,
+friend_id INTEGER,
+PRIMARY KEY (user_id, friend_id)
 );

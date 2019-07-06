@@ -1,9 +1,13 @@
-from flask import Flask, request, jsonify, json
+from flask import Flask, request, jsonify, json, g
 import sqlite3
 import datetime
 import sys
 
+
 app = Flask(__name__)
+def json_message(message):
+    return jsonify({"message": message})
+
 
 @app.route("/api/auth", methods=["GET", "POST"])
 def auth():
@@ -31,11 +35,11 @@ def auth():
         elif request.method == 'GET':
             user_email = request.headers['email']
             c.execute("SELECT auth_token FROM user WHERE email = '{}'".format(user_email))
-            auth_token = c.fetchone()[0]
+            auth_token = c.fetchone()
             if auth_token == None:
                 return jsonify({"message":"Not Exist User"}), 400
 
-            result_json = {'auth_token' : auth_token}
+            result_json = {'auth_token' : auth_token[0]}
             return jsonify(result_json), 200
     
     except TypeError:
@@ -57,7 +61,7 @@ def chat_room():
     try:
         conn = sqlite3.connect("10s.db")
         c = conn.cursor()
-
+        
         #create a chat_room
         if request.method == 'POST':
             user_id = request.headers["Authorization"].split[1]
@@ -73,7 +77,7 @@ def chat_room():
             c.execute("INSERT INTO chat_user(room_id, user_id) VALUES (?,?)", [room_id,user_id])
             conn.commit()
 
-            return "chat_room created", 200
+            return jsonify("chat_room created"), 200
 
         #get chat_room that user is in
         elif request.method == 'GET':
@@ -94,7 +98,7 @@ def chat_room():
             c.execute("DELETE FROM chat_user WHERE room_id = ?", (room_id,))
             conn.commit()
 
-            return "Chat room deleted", 200
+            return jsonify("Chat room deleted"), 200
 
 
         #invite friend to chat_room
@@ -105,9 +109,7 @@ def chat_room():
             c.execute("INSERT INTO chat_user(room_id, user_id) VALUES(?,?)", [room_id, invited_id])
             conn.commit()
 
-            return "friend invited", 200
-
-
+            return jsonify("friend invited"), 200
 
 
     except:
@@ -117,7 +119,7 @@ def chat_room():
     finally:
         conn.close()
 
-    return "chat room"
+    return jsonify(message="ERROR"), 500
 
 
 @app.route("/api/friend", methods=["GET", "POST"])
@@ -147,7 +149,7 @@ def friend():
 
             c.execute("INSERT INTO friend(user_id, friend_id) VALUES(?,?)", [user_id, friend_id])
             conn.commit()
-            return "add friend success", 200
+            return jsonify("add friend success"), 200
     except sqlite3.OperationalError:
         conn.rollback()
         raise
@@ -160,18 +162,17 @@ def friend():
     finally:
         conn.close()
 
-    return "friend_"
+    return jsonify(message="ERROR"), 500
 
 
-@app.route("/api/profile", methods=["GET", "PUT"])
-def profile():
+@app.route("/api/profile/<user_id>", methods=["GET", "PUT"])
+def profile(user_id):
     try:
         conn = sqlite3.connect("10s.db")
         c = conn.cursor()
 
         # get profile
         if request.method == 'GET':
-            user_id = request.headers["Authorization"].split[1]
             c.execute("SELECT * FROM user where id="+user_id)
             print("ex")
             row = c.fetchone()
@@ -200,7 +201,6 @@ def profile():
     finally:
         conn.close()
 
-    return "profile"
-    
+    return jsonify(message="ERROR"), 500
 
-app.run(port=80, host="0.0.0.0", debug=True)
+

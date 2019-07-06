@@ -37,7 +37,7 @@ def auth():
             c.execute("SELECT auth_token FROM user WHERE email = '{}'".format(user_email))
             auth_token = c.fetchone()[0]
             if auth_token == None:
-                return jsonify({"message":"Not Exist User"}), 400
+                return jsonify(message="Not Exist User"), 400
 
             result_json = {'auth_token' : auth_token}
             return jsonify(result_json), 200
@@ -77,7 +77,7 @@ def chat_room():
             c.execute("INSERT INTO chat_user(room_id, user_id) VALUES (?,?)", [room_id,user_id])
             conn.commit()
 
-            return jsonify("chat_room created"), 200
+            return json_message("chat_room created"), 200
 
         #get chat_room that user is in
         elif request.method == 'GET':
@@ -98,7 +98,7 @@ def chat_room():
             c.execute("DELETE FROM chat_user WHERE room_id = ?", (room_id,))
             conn.commit()
 
-            return jsonify("Chat room deleted"), 200
+            return json_message("Chat room deleted"), 200
 
 
         #invite friend to chat_room
@@ -109,7 +109,7 @@ def chat_room():
             c.execute("INSERT INTO chat_user(room_id, user_id) VALUES(?,?)", [room_id, invited_id])
             conn.commit()
 
-            return jsonify("friend invited"), 200
+            return json_message("friend invited"), 200
 
 
     except:
@@ -149,7 +149,7 @@ def friend():
 
             c.execute("INSERT INTO friend(user_id, friend_id) VALUES(?,?)", [user_id, friend_id])
             conn.commit()
-            return jsonify("add friend success"), 200
+            return json_message("add friend success"), 200
     except sqlite3.OperationalError:
         conn.rollback()
         raise
@@ -183,12 +183,13 @@ def profile(user_id):
         elif request.method == 'PUT':
             user_id = request.headers["Authorization"].split[1]
             body = request.json
-            nickname = body['nickname']
+            if body['nickname'] is not None:
+                nickname = body['nickname']
             status = body['status_message']
             profile_image = body['profile_image']
             modified_date = datetime.datetime.now()
             c.execute("UPDATE user SET nickname = '?', status_message='?', profilepic='?', modifieddate = '?' where id=?",[nickname, status, profile_image, modified_date, user_id])
-            return "user updated", 200
+            return json_message("user updated"), 200
 
     except KeyError:
         conn.rollback()

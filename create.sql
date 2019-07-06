@@ -1,7 +1,7 @@
 CREATE TABLE chat_room(
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 room_name TEXT,
-create_date DATE
+create_date DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE chat_user(
@@ -15,13 +15,41 @@ id INTEGER PRIMARY KEY AUTOINCREMENT,
 email TEXT,
 nickname TEXT,
 profile_image TEXT,
-modified_date DATE,
 status_message TEXT,
-auth_token TEXT
+auth_token TEXT,
+modified_date DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE friend(
 user_id INTEGER,
 friend_id INTEGER,
+create_date DATETIME DEFAULT CURRENT_TIMESTAMP,
 PRIMARY KEY (user_id, friend_id)
 );
+
+INSERT INTO user VALUES(0,
+                        "pikachu@pokemon.com", 
+                        "pikapika", 
+                        "https://pokemonletsgo.pokemon.com/assets/img/common/char-pikachu.png", 
+                        "None", 
+                        "1",
+                        CURRENT_TIMESTAMP);
+
+
+INSERT INTO user VALUES(0,
+                        "eevee@pokemon.com", 
+                        "vee", 
+                        "https://pokemonletsgo.pokemon.com/assets/img/common/char-pikachu.png", 
+                        "None", 
+                        "1",
+                        CURRENT_TIMESTAMP);
+
+
+INSERT INTO user VALUES(0,
+                        "pichu@pokemon.com", 
+                        "pi", 
+                        "https://pokemonletsgo.pokemon.com/assets/img/common/char-pikachu.png", 
+                        "None", 
+                        "1",
+                        CURRENT_TIMESTAMP);
+

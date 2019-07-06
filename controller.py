@@ -35,11 +35,11 @@ def auth():
         elif request.method == 'GET':
             user_email = request.headers['email']
             c.execute("SELECT auth_token FROM user WHERE email = '{}'".format(user_email))
-            auth_token = c.fetchone()[0]
+            auth_token = c.fetchone()
             if auth_token == None:
                 return jsonify(message="Not Exist User"), 400
 
-            result_json = {'auth_token' : auth_token}
+            result_json = {'auth_token' : auth_token[0]}
             return jsonify(result_json), 200
     
     except TypeError:
@@ -131,8 +131,8 @@ def friend():
         #search friend
         if request.method == 'GET':
             user_id = request.headers["Authorization"].split()[1]
-            c.execute("SELECT friend_id FROM friend WHERE user_id = ?", [user_id])
-            friend_info = c.fetchone()
+            c.execute("SELECT id, email, nickname, profile_image, modified_date, status_message FROM user INNER JOIN friend ON friend.friend_id = user.email WHERE user_id = ?", [user_id])
+            friend_info = c.fetchall()
             print(friend_info)
             return json.dumps(friend_info), 200
 

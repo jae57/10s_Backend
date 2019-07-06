@@ -4,7 +4,7 @@ room_name TEXT,
 create_date DATE
 );
 
-CREATE TABLE chatUser(
+CREATE TABLE chat_user(
 room_id INTEGER,
 user_id INTEGER,
 PRIMARY KEY(room_id, user_id)

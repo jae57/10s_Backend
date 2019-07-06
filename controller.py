@@ -35,11 +35,11 @@ def auth():
         elif request.method == 'GET':
             user_email = request.headers['email']
             c.execute("SELECT auth_token FROM user WHERE email = '{}'".format(user_email))
-            auth_token = c.fetchone()[0]
+            auth_token = c.fetchone()
             if auth_token == None:
                 return jsonify({"message":"Not Exist User"}), 400
 
-            result_json = {'auth_token' : auth_token}
+            result_json = {'auth_token' : auth_token[0]}
             return jsonify(result_json), 200
     
     except TypeError:

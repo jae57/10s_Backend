@@ -27,29 +27,234 @@ create_date DATETIME DEFAULT CURRENT_TIMESTAMP,
 PRIMARY KEY (user_id, friend_id)
 );
 
-INSERT INTO user VALUES(0,
-                        "pikachu@pokemon.com", 
-                        "pikapika", 
-                        "https://pokemonletsgo.pokemon.com/assets/img/common/char-pikachu.png", 
-                        "None", 
-                        "1",
-                        CURRENT_TIMESTAMP);
+INSERT INTO chat_room(
+room_name,
+create_date)
+VALUES (
+'mychatting',
+datetime('now')
+);
 
+INSERT INTO chat_room(
+room_name,
+create_date)
+VALUES (
+'yourchatting',
+datetime('now')
+);
 
-INSERT INTO user VALUES(0,
-                        "eevee@pokemon.com", 
-                        "vee", 
-                        "https://pokemonletsgo.pokemon.com/assets/img/common/char-pikachu.png", 
-                        "None", 
-                        "1",
-                        CURRENT_TIMESTAMP);
+INSERT INTO chat_room(
+room_name,
+create_date)
+VALUES (
+'herchatting',
+datetime('now')
+);
 
+INSERT INTO chat_room(
+room_name,
+create_date)
+VALUES (
+'hischatting',
+datetime('now')
+);
 
-INSERT INTO user VALUES(0,
-                        "pichu@pokemon.com", 
-                        "pi", 
-                        "https://pokemonletsgo.pokemon.com/assets/img/common/char-pikachu.png", 
-                        "None", 
-                        "1",
-                        CURRENT_TIMESTAMP);
+INSERT INTO chat_user(
+room_id,
+user_id)
+VALUES (
+1,
+1
+);
 
+INSERT INTO chat_user(
+room_id,
+user_id)
+VALUES (
+2,
+1
+);
+
+INSERT INTO chat_user(
+room_id,
+user_id)
+VALUES (
+2,
+2
+);
+
+INSERT INTO chat_user(
+room_id,
+user_id)
+VALUES (
+3,
+3
+);
+
+INSERT INTO chat_user(
+room_id,
+user_id)
+VALUES (
+3,
+4
+);
+
+INSERT INTO chat_user(
+room_id,
+user_id)
+VALUES (
+3,
+5
+);
+
+INSERT INTO chat_user(
+room_id,
+user_id)
+VALUES (
+4,
+4
+);
+
+INSERT INTO user(
+email,
+nickname,
+profile_image,
+modified_date,
+status_message,
+auth_token)
+VALUES (
+'userOne@hello.world',
+'user1',
+'mypic1.png',
+datetime('now'),
+'happy',
+'tooookkkkkeeeeennnnn'
+);
+
+INSERT INTO user(
+email,
+nickname,
+profile_image,
+modified_date,
+status_message,
+auth_token)
+VALUES (
+'userTwo@hello.world',
+'user2',
+'mypic2.png',
+datetime('now'),
+'sad',
+'ttttttokkkkkeeeeennnnn'
+);
+
+INSERT INTO user(
+email,
+nickname,
+profile_image,
+modified_date,
+status_message,
+auth_token)
+VALUES (
+'userThree@hello.world',
+'user3',
+'mypic3.png',
+datetime('now'),
+'soso',
+'tttttooookeeeeennnnn'
+);
+
+INSERT INTO user(
+email,
+nickname,
+profile_image,
+modified_date,
+status_message,
+auth_token)
+VALUES (
+'userFour@hello.world',
+'user4',
+'mypic4.png',
+datetime('now'),
+'good',
+'ttttttooookkkkkennnnn'
+);
+
+INSERT INTO user(
+email,
+nickname,
+profile_image,
+modified_date,
+status_message,
+auth_token
+) VALUES (
+'userFive@hello.world',
+'user5',
+'mypic5.png',
+datetime('now'),
+'angry',
+'ttttttooookkkkkeeeeen'
+);
+
+INSERT INTO friend(
+user_id,
+friend_id
+) VALUES (
+1,
+2
+);
+
+INSERT INTO friend(
+user_id,
+friend_id
+) VALUES (
+2,
+1
+);
+
+INSERT INTO friend(
+user_id,
+friend_id
+) VALUES (
+1,
+3
+);
+
+INSERT INTO friend(
+user_id,
+friend_id
+) VALUES (
+3,
+1
+);
+
+INSERT INTO friend(
+user_id,
+friend_id
+) VALUES (
+1,
+4
+);
+
+INSERT INTO friend(
+user_id,
+friend_id
+) VALUES (
+4,
+1
+);
+
+INSERT INTO friend(
+user_id,
+friend_id
+) VALUES (
+3,
+2
+);
+
+INSERT INTO friend(
+user_id,
+friend_id
+) VALUES (
+2,
+3
+);

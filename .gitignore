@@ -146,5 +146,6 @@ dmypy.json
 # sqlite
 *.db
 
-# aws
-.aws/*
+# nohup
+nohup.out
+

@@ -1,0 +1,1 @@
+kill $(ps aux | grep 'flask'| awk '{print $2}')

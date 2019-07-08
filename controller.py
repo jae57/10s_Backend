@@ -174,22 +174,39 @@ def profile(user_id):
         # get profile
         if request.method == 'GET':
             c.execute("SELECT * FROM user where id="+user_id)
-            print("ex")
             row = c.fetchone()
-            user = {'nickname': row[2], 'status_message': row[3], 'profile_image': row[4] }
+            user = {'nickname': row[2], 'status_message': row[5], 'profile_image': row[3]}
             return json.dumps(user)
 
         # update profile
         elif request.method == 'PUT':
-            user_id = request.headers["Authorization"].split[1]
             body = request.json
-            if body['nickname'] is not None:
-                nickname = body['nickname']
-            status = body['status_message']
-            profile_image = body['profile_image']
-            modified_date = datetime.datetime.now()
-            c.execute("UPDATE user SET nickname = '?', status_message='?', profilepic='?', modifieddate = '?' where id=?",[nickname, status, profile_image, modified_date, user_id])
-            return json_message("user updated"), 200
+            is_updated = False
+
+            sql = "UPDATE user SET "
+            columns = []
+
+            if 'nickname' in body :
+                columns.append("nickname = '"+body['nickname']+"'")
+                is_updated = True
+
+            if 'status_message' in body :
+                columns.append("status_message = '" + body['status_message'] + "'")
+                is_updated = True
+
+            if 'profile_image' in body:
+                columns.append("profile_image = '"+body['profile_image']+"'")
+                is_updated = True
+
+            if is_updated == True:
+                columns.append("modified_date = datetime('now')")
+                sql+=" ,".join(columns)
+                sql+=" where id="+str(user_id)
+                print("sql :"+sql)
+                c.execute(sql)
+                conn.commit()
+
+            return "user updated", 200
 
     except KeyError:
         conn.rollback()

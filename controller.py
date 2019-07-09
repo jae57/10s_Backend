@@ -180,8 +180,9 @@ def profile(user_id):
 
         # update profile
         elif request.method == 'PUT':
-            body = request.json
             is_updated = False
+            print(request.form)
+            print(request.files)
 
             sql = "UPDATE user SET "
             columns = []
@@ -195,6 +196,7 @@ def profile(user_id):
                 is_updated = True
 
             if 'profile_image' in body:
+                #s3_manager.upload_file(
                 columns.append("profile_image = '"+body['profile_image']+"'")
                 is_updated = True
 

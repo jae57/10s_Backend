@@ -93,7 +93,6 @@ def chat_room():
 
             return json.dumps(room_id), 200
 
-
         # delete chat_room
         elif request.method == 'DELETE':
             body = request.json
@@ -149,8 +148,12 @@ def friend():
                 "SELECT id, nickname, profile_image, status_message FROM user INNER JOIN friend ON friend.friend_id = user.id WHERE user_id = ?",
                 [user_id])
             friend_info = c.fetchall()
-            print(friend_info)
-            return json.dumps(friend_info), 200
+            friends = []
+            for friend in friend_info:
+                friend = {'id': friend[0], 'nickname': friend[1], 'profile_image': friend[2], 'status_message': friend[3]}
+                friends.append(friend)
+
+            return json.dumps(friends), 200
 
         # add friend
         elif request.method == 'POST':

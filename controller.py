@@ -140,14 +140,13 @@ def friend():
     try:
         conn = sqlite3.connect("10s.db")
         c = conn.cursor()
-
         # search friend
         if request.method == 'GET':
             auth_token = request.headers["Authorization"].split()[1]
-            c.execute("SELECT id FROM user WHERE auth_token = '?'", auth_token)
-            user_id = c.fetchone()
+            c.execute("SELECT id FROM user WHERE auth_token = '"+auth_token+"'")
+            user_id = c.fetchone()[0]
             c.execute(
-                "SELECT id, email, nickname, profile_image, modified_date, status_message FROM user INNER JOIN friend ON friend.friend_id = user.email WHERE user_id = ?",
+                "SELECT id, nickname, profile_image, status_message FROM user INNER JOIN friend ON friend.friend_id = user.id WHERE user_id = ?",
                 [user_id])
             friend_info = c.fetchall()
             print(friend_info)

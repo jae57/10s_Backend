@@ -10,7 +10,6 @@ app = Flask(__name__)
 def json_message(message):
     return jsonify({"message": message})
 
-
 @app.route("/api/auth", methods=["GET", "POST"])
 def auth():
     print("auth")
@@ -67,7 +66,7 @@ def chat_room():
 
         # create a chat_room
         if request.method == 'POST':
-            auth_token = request.headers["Authorization"].split[1]
+            auth_token = request.headers["Authorization"].split()[1]
             c.execute("SELECT id FROM user WHERE auth_token = '?'",auth_token)
             user_id = c.fetchone()
             body = request.json
@@ -86,7 +85,7 @@ def chat_room():
 
         # get chat_room that user is in
         elif request.method == 'GET':
-            auth_token = request.headers["Authorization"].split[1]
+            auth_token = request.headers["Authorization"].split()[1]
             c.execute("SELECT id FROM user WHERE auth_token = '?'", auth_token)
             user_id = c.fetchone()
             c.execute("SELECT room_id FROM chat_user WHERE user_id = ?", [user_id])
@@ -99,7 +98,7 @@ def chat_room():
         elif request.method == 'DELETE':
             body = request.json
             room_id = body['room_id']
-            auth_token = request.headers["Authorization"].split[1]
+            auth_token = request.headers["Authorization"].split()[1]
             c.execute("SELECT id FROM user WHERE auth_token = '?'", auth_token)
             user_id = c.fetchone()
 
@@ -144,7 +143,7 @@ def friend():
 
         # search friend
         if request.method == 'GET':
-            auth_token = request.headers["Authorization"].split[1]
+            auth_token = request.headers["Authorization"].split()[1]
             c.execute("SELECT id FROM user WHERE auth_token = '?'", auth_token)
             user_id = c.fetchone()
             c.execute(
@@ -154,22 +153,26 @@ def friend():
             print(friend_info)
             return json.dumps(friend_info), 200
 
-
         # add friend
         elif request.method == 'POST':
-            auth_token = request.headers["Authorization"].split[1]
-            c.execute("SELECT id FROM user WHERE auth_token = '?'", auth_token)
-            user_id = c.fetchone()
+            auth_token = request.headers['Authorization'].split()[1]
+            c.execute("SELECT id FROM user WHERE auth_token = '"+auth_token+"'")
+            user_id = c.fetchone()[0]
             body = request.json
             friend_email = body['friend_email']
+
             c.execute("SELECT id FROM user WHERE email='{}'".format(friend_email))
-            friend_id = c.fetchone()[0]
+            friend_id = c.fetchone()
+
             if friend_id is None:
                 return jsonify({"message": "cannot find friend"}), 400
-
+            else:
+                friend_id = friend_id[0]
+            print(str(user_id)+"&"+str(friend_id))
             c.execute("INSERT INTO friend(user_id, friend_id) VALUES(?,?)", [user_id, friend_id])
             conn.commit()
             return json_message("add friend success"), 200
+
     except sqlite3.OperationalError:
         conn.rollback()
         raise
@@ -195,7 +198,6 @@ def profile(user_id):
         if request.method == 'GET':
             c.execute("SELECT * FROM user where id=" + user_id)
             row = c.fetchone()
-            # S3로부터 이미지 받아오는 것
             user = {'nickname': row[2], 'status_message': row[5], 'profile_image': row[3]}
             return json.dumps(user)
 
@@ -205,7 +207,7 @@ def profile(user_id):
             new_nickname = body['nickname']
             new_status = body['status_message']
             image_file = request.files['profile_image']
-            # new_image = s3_manager.upload_file(image_file.read(), user_id, "10s-profile", image_file.filename)
+            #new_image = s3_manager.upload_file(image_file.read(), user_id, "10s-profile", image_file.filename)
             new_image = image_file.filename
 
             c.execute("UPDATE user SET nickname = '" + new_nickname +

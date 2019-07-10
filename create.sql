@@ -71,6 +71,15 @@ INSERT INTO chat_user(
 room_id,
 user_id)
 VALUES (
+1,
+3
+);
+
+
+INSERT INTO chat_user(
+room_id,
+user_id)
+VALUES (
 2,
 1
 );
@@ -103,7 +112,7 @@ INSERT INTO chat_user(
 room_id,
 user_id)
 VALUES (
-3,
+4,
 5
 );
 

@@ -168,8 +168,8 @@ def friend():
                 return jsonify({"message": "cannot find friend"}), 400
             else:
                 friend_id = friend_id[0]
-            print(str(user_id)+"&"+str(friend_id))
             c.execute("INSERT INTO friend(user_id, friend_id) VALUES(?,?)", [user_id, friend_id])
+            c.execute("INSERT INTO friend(user_id, friend_id) VALUES(?,?)", [friend_id, user_id])
             conn.commit()
             return json_message("add friend success"), 200
 

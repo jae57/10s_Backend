@@ -151,6 +151,3 @@ nohup.out
 
 # pycharm
 .idea/*
-
-# aws
-.aws/*

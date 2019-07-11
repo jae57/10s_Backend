@@ -1,8 +1,10 @@
+#-*- coding:utf-8 -*-
 from flask import Flask, request, jsonify, json, g
 import sqlite3
 import datetime
 import sys
 #import s3_manager
+
 
 app = Flask(__name__)
 
@@ -142,7 +144,7 @@ def friend():
         # search friend
         if request.method == 'GET':
             auth_token = request.headers["Authorization"].split()[1]
-            c.execute("SELECT id FROM user WHERE auth_token = '"+auth_token+"'")
+            c.execute("SELECT id FROM user WHERE auth_token ='"+auth_token+"'")
             user_id = c.fetchone()[0]
             c.execute(
                 "SELECT id, nickname, profile_image, status_message FROM user INNER JOIN friend ON friend.friend_id = user.id WHERE user_id = ?",
@@ -153,7 +155,7 @@ def friend():
                 friend = {'id': friend[0], 'nickname': friend[1], 'profile_image': friend[2], 'status_message': friend[3]}
                 friends.append(friend)
 
-            return json.dumps(friends), 200
+            return json.dumps(friends, ensure_ascii=False), 200
 
         # add friend
         elif request.method == 'POST':
@@ -190,32 +192,65 @@ def friend():
     return jsonify(message="ERROR"), 500
 
 
-@app.route("/api/profile/<user_id>", methods=["GET", "PUT"])
-def profile(user_id):
+@app.route("/api/profile/<user_id>", methods=["GET"])
+def friend_profile(user_id):
+    try:
+        conn = sqlite3.connect("10s.db")
+        c = conn.cursor()
+
+        # get friend profile
+        if request.method == 'GET':
+            c.execute("SELECT * FROM user where id=" + user_id)
+            row = c.fetchone()
+            user = {'nickname': row[2], 'status_message': row[5], 'profile_image': row[3]}
+            return json.dumps(user, ensure_ascii=False)
+
+    except KeyError:
+        conn.rollback()
+        raise
+
+    except:
+        print(sys.exc_info()[0])
+        conn.rollback()
+
+    finally:
+        conn.close()
+
+    return jsonify(message="ERROR"), 500
+
+@app.route("/api/profile", methods=["GET", "PUT"])
+def profile():
     try:
         conn = sqlite3.connect("10s.db")
         c = conn.cursor()
 
         # get profile
         if request.method == 'GET':
-            c.execute("SELECT * FROM user where id=" + user_id)
+            # 내 프로필 정보
+            auth_token = request.headers['Authorization'].split()[1]
+            c.execute("SELECT id FROM user WHERE auth_token = '" + auth_token + "'")
+            user_id = c.fetchone()[0]
+            c.execute("SELECT * FROM user where id=" + str(user_id))
             row = c.fetchone()
-            user = {'nickname': row[2], 'status_message': row[5], 'profile_image': row[3]}
-            return json.dumps(user)
+            user = {'nickname': row[2], 'status_message': row[4], 'profile_image': row[3]}
+            return json.dumps(user, ensure_ascii=False)
 
         # update profile
         elif request.method == 'PUT':
+            auth_token = request.headers['Authorization'].split()[1]
+            c.execute("SELECT id FROM user WHERE auth_token = '" + auth_token + "'")
+            user_id = c.fetchone()[0]
+
             body = json.loads(request.form['request'])
             new_nickname = body['nickname']
             new_status = body['status_message']
             image_file = request.files['profile_image']
             #new_image = s3_manager.upload_file(image_file.read(), user_id, "10s-profile", image_file.filename)
             new_image = image_file.filename
-
             c.execute("UPDATE user SET nickname = '" + new_nickname +
                       "', status_message = '" + new_status +
                       "', profile_image= '" + new_image +
-                      "', modified_date = datetime('now') where id=" + user_id
+                      "', modified_date = datetime('now') where id=" + str(user_id)
                       );
             conn.commit()
             return "user updated", 200

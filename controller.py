@@ -88,11 +88,10 @@ def chat_room():
         # get chat_room that user is in
         elif request.method == 'GET':
             auth_token = request.headers["Authorization"].split()[1]
-            c.execute("SELECT id FROM user WHERE auth_token = '?'", auth_token)
-            user_id = c.fetchone()
-            c.execute("SELECT room_id FROM chat_user WHERE user_id = ?", [user_id])
+            c.execute("SELECT id FROM user WHERE auth_token = '"+auth_token+"'")
+            user_id = c.fetchone()[0]
+            c.execute("SELECT room_id FROM chat_user WHERE user_id ="+str(user_id)+"")
             room_id = c.fetchall()
-
             return json.dumps(room_id), 200
 
         # delete chat_room
@@ -100,14 +99,14 @@ def chat_room():
             body = request.json
             room_id = body['room_id']
             auth_token = request.headers["Authorization"].split()[1]
-            c.execute("SELECT id FROM user WHERE auth_token = '?'", auth_token)
-            user_id = c.fetchone()
+            c.execute("SELECT id FROM user WHERE auth_token = '"+auth_token+"'")
+            user_id = c.fetchone()[0]
 
             c.execute("DELETE FROM chat_user WHERE room_id = ? AND user_id=?", [room_id,user_id])
             conn.commit()
 
-            c.execute("SELECT count(*) FROM chat_user WHERE room_id = ?", room_id)
-            remains = c.fetchone()
+            c.execute("SELECT count(*) FROM chat_user WHERE room_id = "+str(room_id))
+            remains = c.fetchone()[0]
             if remains == 0:
                 c.execute("DELETE FROM chat_room WHERE id = ?", (room_id,))
                 conn.commit()

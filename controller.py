@@ -3,11 +3,12 @@ from flask import Flask, request, jsonify, json, g
 import sqlite3
 import datetime
 import sys
-#import message_manager
+from message_manager import MessageManager
 import s3_manager
 
 
 app = Flask(__name__)
+g.message_manager = MesssageManager()
 
 chatroom = dict()
 

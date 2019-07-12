@@ -151,3 +151,4 @@ nohup.out
 
 # pycharm
 .idea/*
+web.py

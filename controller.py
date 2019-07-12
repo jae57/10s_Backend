@@ -69,7 +69,7 @@ def chat_room():
     try:
         conn = sqlite3.connect("10s.db")
         c = conn.cursor()
-        print("hi")
+
         # create a chat_room
         if request.method == 'POST':
             auth_token = request.headers["Authorization"].split()[1]
@@ -94,8 +94,9 @@ def chat_room():
             auth_token = request.headers["Authorization"].split()[1]
             c.execute("SELECT id FROM user WHERE auth_token = '"+auth_token+"'")
             user_id = c.fetchone()[0]
-            c.execute("SELECT chat_room.id, chat_room.room_name FROM `chat_user`as uchat, `chat_room` WHERE `user_id` = ? AND uchat.room_id = chat_room.id", [user_id])
+            c.execute("SELECT cr.id, cr.room_name FROM chat_user AS cu INNER JOIN chat_room AS cr on cu.room_id = cr.id WHERE cu.user_id="+str(user_id))
             room_infos = c.fetchall()
+            print(room_infos)
             room_infos_json = list()
             for room_info in room_infos:
                 room_infos_json.append({"room_id":room_info[0], "room_name":room_info[1]})

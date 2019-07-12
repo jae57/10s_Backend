@@ -62,6 +62,7 @@ def auth():
     return jsonify(message="ERROR"), 500
 
 
+
 @app.route("/api/chatRoom", methods=["GET", "POST", "PUT", "DELETE"])
 def chat_room():
     try:
@@ -71,8 +72,8 @@ def chat_room():
         # create a chat_room
         if request.method == 'POST':
             auth_token = request.headers["Authorization"].split()[1]
-            c.execute("SELECT id FROM user WHERE auth_token = '?'",auth_token)
-            user_id = c.fetchone()
+            c.execute("SELECT id FROM user WHERE auth_token = ?",[auth_token])
+            user_id = c.fetchone()[0]
             body = request.json
             room_name = body['room_name']
             time_created = datetime.datetime.now()
@@ -80,7 +81,7 @@ def chat_room():
             conn.commit()
 
             c.execute("SELECT id FROM chat_room WHERE room_name = ?", [room_name])
-            room_id = c.fetchone()
+            room_id = c.fetchone()[0]
 
             c.execute("INSERT INTO chat_user(room_id, user_id) VALUES (?,?)", [room_id, user_id])
             conn.commit()

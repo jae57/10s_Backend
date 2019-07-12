@@ -1,4 +1,6 @@
 from datetime import datetime
+from pymongo import MongoClient
+
 
 def make_temp():
 	chatroom = dict()
@@ -38,28 +40,29 @@ def make_temp():
 
 class MessageManager:
 	def __init__(self, mode=1):
-		if mode == 0:
-			self.chatroom = make_temp()
-		else:	
-			self.chatroom = dict()
+		self.conn = MongoClient('localhost', 27017)
 	
 	def getMessage(self, chat_id, start=1):
-		if chat_id in self.chatroom:
-			return self.chatroom[chat_id][start-1:]
-		return list()
+		db = self.conn[chat_id]
+		return list(db.messages.find())
 
 	def pushMessage(self, chat_id, message):
-		if chat_id not in self.chatroom:
-			self.chatroom[chat_id] = []
-		self.chatroom[chat_id].append(message)
+		db = self.conn[chat_id]
+		messages = db.messages
+		messages.insert_one(message)
 
+	def countMessage(self, chat_id):
+		db = self.conn[chat_id]
+		return db.messages.count_documents({})
 
 if __name__ == "__main__":
+	from pprint import pprint
 	manager = MessageManager()
-	manager.pushMessage(5, {"hi":"by"})
-	print(manager.getMessage(5))
-	manager2 = MessageManager(0)
-	print(manager2.getMessage(1))
+	## 몽고 db 키는 스트링 이어야함
+	print(manager.countMessage(str(5)))
+
+	pprint(manager.getMessage(str(5)))
+	
 
 
 

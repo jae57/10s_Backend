@@ -3,12 +3,12 @@ from flask import Flask, request, jsonify, json, g
 import sqlite3
 import datetime
 import sys
-from message_manager import MessageManager
+import message_manager
 import s3_manager
-
+ 
 
 app = Flask(__name__)
-g.message_manager = MesssageManager()
+#g.message_manager = message_manager.MessageManager()
 
 chatroom = dict()
 
@@ -68,7 +68,7 @@ def chat_room():
     try:
         conn = sqlite3.connect("10s.db")
         c = conn.cursor()
-
+        print("hi")
         # create a chat_room
         if request.method == 'POST':
             auth_token = request.headers["Authorization"].split()[1]
@@ -88,15 +88,17 @@ def chat_room():
 
             return json_message("chat_room created"), 200
 
-        # get chat_room that user is in
+        ## get chat_room that user is in
         elif request.method == 'GET':
             auth_token = request.headers["Authorization"].split()[1]
             c.execute("SELECT id FROM user WHERE auth_token = '"+auth_token+"'")
             user_id = c.fetchone()[0]
-            c.execute("SELECT room_id, room_name FROM chat_user WHERE user_id ="+str(user_id)+"")
-            room_info = c.fetchall()
-            return json.dumps(room_info), 200
-
+            c.execute("SELECT chat_room.id, chat_room.room_name FROM `chat_user`as uchat, `chat_room` WHERE `user_id` = ? AND uchat.room_id = chat_room.id", [user_id])
+            room_infos = c.fetchall()
+            room_infos_json = list()
+            for room_info in room_infos:
+                room_infos_json.append({"room_id":room_info[0], "room_name":room_info[1]})
+            return jsonify(room_infos_json), 200
 
         # delete chat_room
         elif request.method == 'DELETE':

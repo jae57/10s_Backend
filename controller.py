@@ -3,11 +3,13 @@ from flask import Flask, request, jsonify, json, g
 import sqlite3
 import datetime
 import sys
-#import s3_manager
+#import message_manager
+import s3_manager
 
 
 app = Flask(__name__)
 
+chatroom = dict()
 
 def json_message(message):
     return jsonify({"message": message})
@@ -90,9 +92,10 @@ def chat_room():
             auth_token = request.headers["Authorization"].split()[1]
             c.execute("SELECT id FROM user WHERE auth_token = '"+auth_token+"'")
             user_id = c.fetchone()[0]
-            c.execute("SELECT room_id FROM chat_user WHERE user_id ="+str(user_id)+"")
-            room_id = c.fetchall()
-            return json.dumps(room_id), 200
+            c.execute("SELECT room_id, room_name FROM chat_user WHERE user_id ="+str(user_id)+"")
+            room_info = c.fetchall()
+            return json.dumps(room_info), 200
+
 
         # delete chat_room
         elif request.method == 'DELETE':
@@ -266,3 +269,45 @@ def profile():
         conn.close()
 
     return jsonify(message="ERROR"), 500
+
+
+#when message is received from client
+@app.route("/api/chatRoom/<int:id>/message", methods = ['POST'])
+def receive(id):
+        if request.method == 'POST':
+                print ("first")
+                conn = sqlite3.connect("10s.db")
+                c = conn.cursor()
+
+                #upload file onto S3
+                f = request.files['file']
+                route = {}
+                s3_manager.upload_file(f, id, '10s-voice', f.filename)
+
+                #upload onto MongoDB
+                if not id in chatroom:
+                        chatroom[id] = []
+
+                auth_token = request.headers["Authorization"].split()[1]
+                c.execute("SELECT `id` FROM `user` WHERE `auth_token` = ?", [auth_token])
+                user_id = c.fetchone()
+
+                order = len(chatroom[id]) + 1
+                chatroom[id].append({"index" : order, 
+                                        "sender" : user_id,
+                                        "receiver" : id, 
+                                        "content" : route,
+                                        "date" : datetime.datetime.now()})
+        print(chatroom)
+        return "success", 200
+
+#mongoDB list의 가져오기
+#bring messages with index
+#@app.route("/api/chatRoom/<id>/message/<start>", methods = ['GET'])
+#def bring(id, start):
+        #result = message_manager.getMessage(id)
+
+#@app.route("/api/chatRoom/<id>/message", methods = ['GET'])
+#def bringAll(id):
+        #result = message_manager.getMessage(id)
+        #return json.dumps(result), 200

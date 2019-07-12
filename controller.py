@@ -96,7 +96,6 @@ def chat_room():
             user_id = c.fetchone()[0]
             c.execute("SELECT cr.id, cr.room_name FROM chat_user AS cu INNER JOIN chat_room AS cr on cu.room_id = cr.id WHERE cu.user_id="+str(user_id))
             room_infos = c.fetchall()
-            print(room_infos)
             room_infos_json = list()
             for room_info in room_infos:
                 room_infos_json.append({"room_id":room_info[0], "room_name":room_info[1]})

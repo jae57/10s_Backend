@@ -37,24 +37,29 @@ def make_temp():
 
 
 class MessageManager:
-	def __init__(self, mode=0):
+	def __init__(self, mode=1):
 		if mode == 0:
 			self.chatroom = make_temp()
 		else:	
 			self.chatroom = dict()
 	
 	def getMessage(self, chat_id, start=1):
-		return self.chatroom[chat_id][start-1:]
+		if chat_id in self.chatroom:
+			return self.chatroom[chat_id][start-1:]
+		return list()
 
 	def pushMessage(self, chat_id, message):
-	    self.chatroom[chat_id].append(message)
+		if chat_id not in self.chatroom:
+			self.chatroom[chat_id] = []
+		self.chatroom[chat_id].append(message)
 
 
 if __name__ == "__main__":
-	manager = MessageManager(1)
-	print(manager.getMessage(1))
-	manager2 = MessageManager()
-	print(manager.getMessage(1))
+	manager = MessageManager()
+	manager.pushMessage(5, {"hi":"by"})
+	print(manager.getMessage(5))
+	manager2 = MessageManager(0)
+	print(manager2.getMessage(1))
 
 
 

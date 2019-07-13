@@ -2,66 +2,33 @@ from datetime import datetime
 from pymongo import MongoClient
 
 
-def make_temp():
-	chatroom = dict()
-	chatroom[1] = [{
-		"order":1, 
-        "sender":1,
-		"receiver":1,
-		"content":"https://10s-voice.s3.amazonaws.com/chat-room/175d40241f5d1d6612f970fcdfe47c36/test.mp3",
-		"date": datetime.now()
-	}, {
-		"order":2,
-		"sender":1,
-		"receiver":3,
-		"content":"https://10s-voice.s3.amazonaws.com/chat-room/175d40241f5d1d6612f970fcdfe47c36/test.mp3",
-		"date":datetime.now()
-	}, {
-		"order":3,
-		"sender":3,
-		"receiver":1,
-		"content":"https://10s-voice.s3.amazonaws.com/chat-room/175d40241f5d1d6612f970fcdfe47c36/test.mp3",
-		"date":datetime.now()
-	}, {
-		"order":4,
-		"sender":1,
-		"receiver":1,
-		"content":"https://10s-voice.s3.amazonaws.com/chat-room/175d40241f5d1d6612f970fcdfe47c36/test.mp3",
-		"date":datetime.now()
-	}, {
-		"order":5,
-		"sender":3,
-		"receiver":1,
-		"content":"https://10s-voice.s3.amazonaws.com/chat-room/175d40241f5d1d6612f970fcdfe47c36/test.mp3",
-		"date":datetime.now()
-	}]
-	return chatroom
-
-
 class MessageManager:
 	def __init__(self, mode=1):
 		self.conn = MongoClient('localhost', 27017)
 	
-	def getMessage(self, chat_id, start=1):
-		db = self.conn[chat_id]
-		return list(db.messages.find())
+	def getMessage(self, chat_id, start=0):
+		db = self.conn[str(chat_id)]
+		return list(db.messages.find({},{'_id':0}).skip(start).sort([('order',1)]))
 
 	def pushMessage(self, chat_id, message):
-		db = self.conn[chat_id]
+		db = self.conn[str(chat_id)]
 		messages = db.messages
 		messages.insert_one(message)
 
 	def countMessage(self, chat_id):
-		db = self.conn[chat_id]
+		db = self.conn[str(chat_id)]
 		return db.messages.count_documents({})
+
+	def getNextOrder(self, chat_id):
+		return self.countMessage(chat_id) + 1
+
 
 if __name__ == "__main__":
 	from pprint import pprint
 	manager = MessageManager()
 	## 몽고 db 키는 스트링 이어야함
-	print(manager.countMessage(str(5)))
-
-	pprint(manager.getMessage(str(5)))
+	pprint(manager.countMessage(1))
+	pprint(manager.getNextOrder(1))
 	
 
 

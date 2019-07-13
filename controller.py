@@ -301,7 +301,7 @@ def receive(id):
                 return json_message("success"), 200
         else:
             result = message_manager.getMessage(id)
-            return jsonify(result), 200
+            return jsonify({"messages": result}), 200
 
 
 #bring messages with index

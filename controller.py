@@ -1,19 +1,20 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 from flask import Flask, request, jsonify, json, g
 import sqlite3
 import datetime
 import sys
 import message_manager
 import s3_manager
-import logging
 
 app = Flask(__name__)
-message_manager = message_manager.MessageManager()
+# g.message_manager = message_manager.MessageManager()
 
 chatroom = dict()
 
+
 def json_message(message):
     return jsonify({"message": message})
+
 
 @app.route("/api/auth", methods=["GET", "POST"])
 def auth():
@@ -63,7 +64,6 @@ def auth():
     return jsonify(message="ERROR"), 500
 
 
-
 @app.route("/api/chatRoom", methods=["GET", "POST", "PUT", "DELETE"])
 def chat_room():
     try:
@@ -73,32 +73,69 @@ def chat_room():
         # create a chat_room
         if request.method == 'POST':
             auth_token = request.headers["Authorization"].split()[1]
-            c.execute("SELECT id FROM user WHERE auth_token = ?",[auth_token])
+            c.execute("SELECT id FROM user WHERE auth_token = ?", [auth_token])
             user_id = c.fetchone()[0]
             body = request.json
-            room_name = body['room_name']
-            time_created = datetime.datetime.now()
-            c.execute("INSERT INTO chat_room(room_name, create_date) VALUES (?,?)", [room_name, time_created])
-            conn.commit()
+            invited_id = body['invited_id']
+            isExist = False
+            # check
+            c.execute("SELECT room_id FROM chat_user WHERE user_id = " + str(user_id))
 
-            c.execute("SELECT id FROM chat_room WHERE room_name = ?", [room_name])
-            room_id = c.fetchone()[0]
+            my_rooms = c.fetchall()
+            c.execute("SELECT room_id FROM chat_user WHERE user_id = " + str(invited_id))
+            your_rooms = c.fetchall()
+            share_rooms = list(set(my_rooms) & set(your_rooms))
+            for sr in share_rooms:
+                sr = sr[0]
+                c.execute("SELECT count(*) FROM chat_user WHERE room_id = " + str(sr))
+                capacity = c.fetchone()[0]
+                if capacity == 2:
+                    isExist = True
+                    room_id = sr
+                    break
+            room_infos_json = list()
 
-            c.execute("INSERT INTO chat_user(room_id, user_id) VALUES (?,?)", [room_id, user_id])
-            conn.commit()
+            if isExist:
+                c.execute("SELECT room_name FROM chat_room WHERE id = " + str(room_id))
+                room_name = c.fetchone()[0]
+            else:
+                c.execute("SELECT nickname FROM user WHERE id = " + str(invited_id))
+                time_created = datetime.datetime.now()
+                room_name = c.fetchone()[0]
+                c.execute("INSERT INTO chat_room(room_name, create_date) VALUES (?,?)", [room_name, time_created]);
+                c.execute("SELECT id FROM chat_room WHERE room_name = ?", [room_name])
+                room_id = c.fetchone()[0]
+                c.execute("INSERT INTO chat_user(room_id, user_id) VALUES (?,?)", [room_id, user_id])
+                c.execute("INSERT INTO chat_user(room_id, user_id) VALUES (?,?)", [room_id, invited_id])
+                conn.commit()
 
-            return json_message("chat_room created"), 200
+            # get members
+            c.execute("SELECT user_id FROM chat_user WHERE room_id = " + str(room_id))
+            members = c.fetchall()
+            member_infos = list()
+            for member in members:
+                member = member[0]
+                c.execute("SELECT nickname, profile_image, status_message FROM user WHERE id = " + str(member))
+                member_info = c.fetchone()
+                member_infos.append({'id': member, 'nickname': member_info[0], 'profile_image': member_info[1],
+                                     'status_message': member_info[2]})
+
+            room_infos_json.append({"room_id": room_id, "room_name": room_name, "members": member_infos})
+            print(room_infos_json)
+            return jsonify(room_infos_json), 200
 
         ## get chat_room that user is in
         elif request.method == 'GET':
             auth_token = request.headers["Authorization"].split()[1]
-            c.execute("SELECT id FROM user WHERE auth_token = '"+auth_token+"'")
+            c.execute("SELECT id FROM user WHERE auth_token = '" + auth_token + "'")
             user_id = c.fetchone()[0]
-            c.execute("SELECT cr.id, cr.room_name FROM chat_user AS cu INNER JOIN chat_room AS cr on cu.room_id = cr.id WHERE cu.user_id="+str(user_id))
+            c.execute(
+                "SELECT cr.id, cr.room_name FROM chat_user AS cu INNER JOIN chat_room AS cr on cu.room_id = cr.id WHERE cu.user_id=" + str(
+                    user_id))
             room_infos = c.fetchall()
             room_infos_json = list()
             for room_info in room_infos:
-                room_infos_json.append({"room_id":room_info[0], "room_name":room_info[1]})
+                room_infos_json.append({"room_id": room_info[0], "room_name": room_info[1]})
             return jsonify(room_infos_json), 200
 
         # delete chat_room
@@ -106,13 +143,13 @@ def chat_room():
             body = request.json
             room_id = body['room_id']
             auth_token = request.headers["Authorization"].split()[1]
-            c.execute("SELECT id FROM user WHERE auth_token = '"+auth_token+"'")
+            c.execute("SELECT id FROM user WHERE auth_token = '" + auth_token + "'")
             user_id = c.fetchone()[0]
 
-            c.execute("DELETE FROM chat_user WHERE room_id = ? AND user_id=?", [room_id,user_id])
+            c.execute("DELETE FROM chat_user WHERE room_id = ? AND user_id=?", [room_id, user_id])
             conn.commit()
 
-            c.execute("SELECT count(*) FROM chat_user WHERE room_id = "+str(room_id))
+            c.execute("SELECT count(*) FROM chat_user WHERE room_id = " + str(room_id))
             remains = c.fetchone()[0]
             if remains == 0:
                 c.execute("DELETE FROM chat_room WHERE id = ?", (room_id,))
@@ -150,7 +187,7 @@ def friend():
         # search friend
         if request.method == 'GET':
             auth_token = request.headers["Authorization"].split()[1]
-            c.execute("SELECT id FROM user WHERE auth_token ='"+auth_token+"'")
+            c.execute("SELECT id FROM user WHERE auth_token ='" + auth_token + "'")
             user_id = c.fetchone()[0]
             c.execute(
                 "SELECT id, nickname, profile_image, status_message FROM user INNER JOIN friend ON friend.friend_id = user.id WHERE user_id = ?",
@@ -158,16 +195,16 @@ def friend():
             friend_info = c.fetchall()
             friends = []
             for friend in friend_info:
-                friend = {'id': friend[0], 'nickname': friend[1], 'profile_image': friend[2], 'status_message': friend[3]}
+                friend = {'id': friend[0], 'nickname': friend[1], 'profile_image': friend[2],
+                          'status_message': friend[3]}
                 friends.append(friend)
 
-            dic = { 'friends' : friends }
-            return json.dumps(dic, ensure_ascii=False), 200
+            return json.dumps(friends, ensure_ascii=False), 200
 
         # add friend
         elif request.method == 'POST':
             auth_token = request.headers['Authorization'].split()[1]
-            c.execute("SELECT id FROM user WHERE auth_token = '"+auth_token+"'")
+            c.execute("SELECT id FROM user WHERE auth_token = '" + auth_token + "'")
             user_id = c.fetchone()[0]
             body = request.json
             friend_email = body['friend_email']
@@ -225,6 +262,7 @@ def friend_profile(user_id):
 
     return jsonify(message="ERROR"), 500
 
+
 @app.route("/api/profile", methods=["GET", "PUT"])
 def profile():
     try:
@@ -247,19 +285,20 @@ def profile():
             auth_token = request.headers['Authorization'].split()[1]
             c.execute("SELECT id FROM user WHERE auth_token = '" + auth_token + "'")
             user_id = c.fetchone()[0]
-            
-            new_nickname = request.form['nickname']
-            new_status = request.form['status_message']
+
+            body = json.loads(request.form['request'])
+            new_nickname = body['nickname']
+            new_status = body['status_message']
             image_file = request.files['profile_image']
-            new_image = s3_manager.upload_file(image_file, user_id, "10s-profile", image_file.filename)
+            # new_image = s3_manager.upload_file(image_file.read(), user_id, "10s-profile", image_file.filename)
             new_image = image_file.filename
             c.execute("UPDATE user SET nickname = '" + new_nickname +
                       "', status_message = '" + new_status +
                       "', profile_image= '" + new_image +
                       "', modified_date = datetime('now') where id=" + str(user_id)
-                      );    
+                      );
             conn.commit()
-            return json_message("user updated"), 200
+            return "user updated", 200
 
     except KeyError:
         conn.rollback()
@@ -275,38 +314,43 @@ def profile():
     return jsonify(message="ERROR"), 500
 
 
-#when message is received from client
-@app.route("/api/chatRoom/<int:id>/message", methods = ['POST', 'GET'])
+# when message is received from client
+@app.route("/api/chatRoom/<int:id>/message", methods=['POST'])
 def receive(id):
-        if request.method == 'POST':
-                conn = sqlite3.connect("10s.db")
-                c = conn.cursor()
+    if request.method == 'POST':
+        print("first")
+        conn = sqlite3.connect("10s.db")
+        c = conn.cursor()
 
-                #upload file onto S3
-                f = request.files['file']
-                
-                path = s3_manager.upload_file(f, id, '10s-voice', f.filename)
+        # upload file onto S3
+        f = request.files['file']
+        route = {}
+        s3_manager.upload_file(f, id, '10s-voice', f.filename)
 
-                auth_token = request.headers["Authorization"].split()[1]
-                c.execute("SELECT `id` FROM `user` WHERE `auth_token` = ?", [auth_token])
-                user_id = c.fetchone()
+        # upload onto MongoDB
+        if not id in chatroom:
+            chatroom[id] = []
 
-                order = message_manager.countMessage(id) + 1
-                message = {"index" : order, 
-                                        "sender" : user_id,
-                                        "receiver" : id, 
-                                        "content" : path,
-                                        "date" : datetime.datetime.now()}
-                message_manager.pushMessage(id, message)
-                return json_message("success"), 200
-        else:
-            result = message_manager.getMessage(id)
-            return jsonify({"messages": result}), 200
+        auth_token = request.headers["Authorization"].split()[1]
+        c.execute("SELECT `id` FROM `user` WHERE `auth_token` = ?", [auth_token])
+        user_id = c.fetchone()
 
+        order = len(chatroom[id]) + 1
+        chatroom[id].append({"index": order,
+                             "sender": user_id,
+                             "receiver": id,
+                             "content": route,
+                             "date": datetime.datetime.now()})
+    print(chatroom)
+    return "success", 200
 
-#bring messages with index
-@app.route("/api/chatRoom/<id>/message/<int:start>", methods = ['GET'])
-def bring(id, start):
-        result = message_manager.getMessage(id, start)
-        return jsonify({"messages": result}), 200
-        
+# mongoDB list의 가져오기
+# bring messages with index
+# @app.route("/api/chatRoom/<id>/message/<start>", methods = ['GET'])
+# def bring(id, start):
+# result = message_manager.getMessage(id)
+
+# @app.route("/api/chatRoom/<id>/message", methods = ['GET'])
+# def bringAll(id):
+# result = message_manager.getMessage(id)
+# return json.dumps(result), 200

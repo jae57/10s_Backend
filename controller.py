@@ -246,20 +246,19 @@ def profile():
             auth_token = request.headers['Authorization'].split()[1]
             c.execute("SELECT id FROM user WHERE auth_token = '" + auth_token + "'")
             user_id = c.fetchone()[0]
-
-            body = json.loads(request.form['request'])
-            new_nickname = body['nickname']
-            new_status = body['status_message']
+            
+            new_nickname = request.form['nickname']
+            new_status = request.form['status_message']
             image_file = request.files['profile_image']
-            #new_image = s3_manager.upload_file(image_file.read(), user_id, "10s-profile", image_file.filename)
+            new_image = s3_manager.upload_file(image_file, user_id, "10s-profile", image_file.filename)
             new_image = image_file.filename
             c.execute("UPDATE user SET nickname = '" + new_nickname +
                       "', status_message = '" + new_status +
                       "', profile_image= '" + new_image +
                       "', modified_date = datetime('now') where id=" + str(user_id)
-                      );
+                      );    
             conn.commit()
-            return "user updated", 200
+            return json_message("user updated"), 200
 
     except KeyError:
         conn.rollback()

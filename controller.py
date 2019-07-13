@@ -5,7 +5,7 @@ import datetime
 import sys
 import message_manager
 import s3_manager
- 
+import logging
 
 app = Flask(__name__)
 message_manager = message_manager.MessageManager()
@@ -161,7 +161,8 @@ def friend():
                 friend = {'id': friend[0], 'nickname': friend[1], 'profile_image': friend[2], 'status_message': friend[3]}
                 friends.append(friend)
 
-            return json.dumps(friends, ensure_ascii=False), 200
+            dic = { 'friends' : friends }
+            return json.dumps(dic, ensure_ascii=False), 200
 
         # add friend
         elif request.method == 'POST':

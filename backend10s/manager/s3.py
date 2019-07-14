@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*-
 import boto3
 from pytz import timezone
 
@@ -14,7 +15,6 @@ def upload_file(file_stream, chatroom_id, bucket, file_name):
     response = s3_client.generate_presigned_url('get_object', Params={'Bucket':bucket, 'Key':file_path})
     return response.split('?')[0]
 
-
-
-
-
+if __name__ == "__main__":
+    with open("./test_files/test.mp3", "rb") as f:
+        print(upload_file(f, "chat-room", "10s-voice", "test.mp3"))

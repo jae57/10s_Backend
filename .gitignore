@@ -152,3 +152,6 @@ nohup.out
 # pycharm
 .idea/*
 web.py
+
+# log
+*.log*

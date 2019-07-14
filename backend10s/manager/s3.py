@@ -18,7 +18,3 @@ def upload_file(file_stream, chatroom_id, bucket, file_name):
 if __name__ == "__main__":
     with open("./test_files/test.mp3", "rb") as f:
         print(upload_file(f, "chat-room", "10s-voice", "test.mp3"))
-
-
-
-

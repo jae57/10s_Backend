@@ -90,7 +90,7 @@ class DatabseManager:
     def get_user_id_by_email(self, email):
         with sqlite3.connect(self.db) as conn:
             c = conn.cursor()
-            c.execute("SELECT id FROM user WHERE email='{}'".format(friend_email))
+            c.execute("SELECT id FROM user WHERE email='{}'".format(email))
             friend_id = c.fetchone()
             return friend_id
 

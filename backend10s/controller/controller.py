@@ -5,17 +5,19 @@ import sqlite3
 import logging
 import datetime
 
-import message_manager
-import s3_manager
-import db_manager
-import json_serializer
 
 
 
-app = Flask(__name__)
-message_manager = message_manager.MessageManager()
-db_manager = db_manager.DatabseManager("10s.db")
+from backend10s.manager import message
+from backend10s.manager import s3 as s3_manager
+from backend10s.manager import database
+from backend10s.backend10s_blueprint import backend10s as app
 
+message_manager = message.MessageManager()
+db_manager = database.DatabseManager("10s.db")
+
+def json_message(message):
+    return jsonify({"message": message})
 
 @app.route("/api/auth", methods=["GET", "POST"])
 def auth():
@@ -57,7 +59,7 @@ def chat_room():
 
         db_manager.create_chatroom(room_name, time_created, user_id)
 
-        return json_serializer.message("chat_room created"), 200
+        return json_message("chat_room created"), 200
 
     ## get chat_room that user is in
     elif request.method == 'GET':
@@ -84,7 +86,7 @@ def chat_room():
 
         db_manager.check_delete_room(room_id)
 
-        return json_serializer.message("exit successfully"), 200
+        return json_message("exit successfully"), 200
 
 
     # invite friend to chat_room
@@ -94,7 +96,7 @@ def chat_room():
         invited_id = body['invited_id']
         db_manager.update_chatuser(room_id, invited_id)
 
-        return json_serializer.message("friend invited"), 200
+        return json_message("friend invited"), 200
 
 
 @app.route("/api/friend", methods=["GET", "POST"])
@@ -138,7 +140,7 @@ def profile():
         new_image_path = s3_manager.upload_file(image_file, user_id, "10s-profile", image_file.filename)
         db_manager.update_user_profile(new_nickname, new_status, new_image_path, user_id)
         
-        return json_serializer.message("user updated"), 200
+        return json_message("user updated"), 200
 
 
 #when message is received from client
@@ -159,7 +161,7 @@ def receive(id):
                                 "content" : path,
                                 "date" : datetime.datetime.now()}
         message_manager.pushMessage(id, message)
-        return json_serializer.message("success"), 200
+        return json_message("success"), 200
 
     else:
         result = message_manager.getMessage(id)

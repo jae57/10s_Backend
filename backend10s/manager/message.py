@@ -1,4 +1,3 @@
-#-*- coding:utf-8 -*-
 from datetime import datetime
 from pymongo import MongoClient
 
@@ -30,11 +29,3 @@ if __name__ == "__main__":
 	## 몽고 db 키는 스트링 이어야함
 	pprint(manager.countMessage(1))
 	pprint(manager.getNextOrder(1))
-	
-
-
-
-
-
-
-

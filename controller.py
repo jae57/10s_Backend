@@ -1,18 +1,20 @@
 #-*- coding:utf-8 -*-
 from flask import Flask, request, jsonify, json, g
+
 import sqlite3
+import logging
 import datetime
+
 import message_manager
 import s3_manager
-import logging
 import db_manager
+import json_serializer
+
+
 
 app = Flask(__name__)
 message_manager = message_manager.MessageManager()
 db_manager = db_manager.DatabseManager("10s.db")
-
-def json_message(message):
-    return jsonify({"message": message})
 
 
 @app.route("/api/auth", methods=["GET", "POST"])
@@ -33,7 +35,7 @@ def auth():
     # login: getUser
     else: #request.method == 'GET':
         user_email = request.headers['email']
-        auth_token = check_user(user_email)
+        auth_token = db_manager.check_user(user_email)
         if auth_token == None:
             return jsonify(message="Not Exist User"), 400
 
@@ -55,7 +57,7 @@ def chat_room():
 
         db_manager.create_chatroom(room_name, time_created, user_id)
 
-        return json_message("chat_room created"), 200
+        return json_serializer.message("chat_room created"), 200
 
     ## get chat_room that user is in
     elif request.method == 'GET':
@@ -80,9 +82,9 @@ def chat_room():
         
         db_manager.out_chatroom(room_id, user_id)
 
-        check_delete_room(room_id)
+        db_manager.check_delete_room(room_id)
 
-        return json_message("exit successfully"), 200
+        return json_serializer.message("exit successfully"), 200
 
 
     # invite friend to chat_room
@@ -92,7 +94,7 @@ def chat_room():
         invited_id = body['invited_id']
         db_manager.update_chatuser(room_id, invited_id)
 
-        return json_message("friend invited"), 200
+        return json_serializer.message("friend invited"), 200
 
 
 @app.route("/api/friend", methods=["GET", "POST"])
@@ -114,7 +116,7 @@ def friend():
 
 @app.route("/api/profile/<user_id>", methods=["GET"])
 def get_profile(user_id):
-    user_profile = get_user_profile(user_id)
+    user_profile = db_manager.get_user_profile(user_id)
     return json.dumps(user_profile, ensure_ascii=False)
 
 
@@ -136,7 +138,7 @@ def profile():
         new_image_path = s3_manager.upload_file(image_file, user_id, "10s-profile", image_file.filename)
         db_manager.update_user_profile(new_nickname, new_status, new_image_path, user_id)
         
-        return json_message("user updated"), 200
+        return json_serializer.message("user updated"), 200
 
 
 #when message is received from client
@@ -144,7 +146,7 @@ def profile():
 def receive(id):
     if request.method == 'POST':
         auth_token = request.headers["Authorization"].split()[1]
-        user_id = get_user_id(auth_token)
+        user_id = db_manager.get_user_id(auth_token)
 
         #upload file onto S3
         f = request.files['file']
@@ -157,7 +159,7 @@ def receive(id):
                                 "content" : path,
                                 "date" : datetime.datetime.now()}
         message_manager.pushMessage(id, message)
-        return json_message("success"), 200
+        return json_serializer.message("success"), 200
 
     else:
         result = message_manager.getMessage(id)
@@ -169,4 +171,4 @@ def receive(id):
 def bring(id, start):
         result = message_manager.getMessage(id, start)
         return jsonify({"messages": result}), 200
-        
+

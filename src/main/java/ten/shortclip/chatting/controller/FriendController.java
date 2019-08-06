@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ten.shortclip.chatting.model.User;
+import ten.shortclip.chatting.domain.User;
 import ten.shortclip.chatting.service.serviceImpl.FriendServiceImpl;
 
 import java.util.ArrayList;

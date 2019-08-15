@@ -18,5 +18,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     runtimeOnly 'mysql:mysql-connector-java'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.603'
+    
+    
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

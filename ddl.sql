@@ -25,10 +25,11 @@ ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `user`(
 `id` INT(11) NOT NULL AUTO_INCREMENT, 
-`email` TEXT, 
+`email` TEXT,
+`password` TEXT, 
 `nickname` TEXT, 
 `profile_image` TEXT, 
 `status_message` TEXT, 
-auth_token TEXT, 
-modified_date DATETIME DEFAULT CURRENT_TIMESTAMP, 
+`register_date` DATETIME DEFAULT CURRENT_TIMESTAMP, 
+`modified_date` DATETIME DEFAULT CURRENT_TIMESTAMP, 
 PRIMARY KEY(`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;

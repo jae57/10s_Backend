@@ -1,4 +1,4 @@
-package ten.shortclip.chatting.Exception;
+package ten.shortclip.chatting.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

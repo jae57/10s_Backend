@@ -6,7 +6,7 @@ import ten.shortclip.chatting.Exception.WrongPasswordException;
 import ten.shortclip.chatting.dto.LoginUserDto;
 import ten.shortclip.chatting.dto.RequestUserDto;
 import ten.shortclip.chatting.domain.User;
-import ten.shortclip.chatting.repository.AuthRepository;
+import ten.shortclip.chatting.repository.UserRepository;
 import ten.shortclip.chatting.service.AuthService;
 
 import org.mindrot.jbcrypt.BCrypt;
@@ -17,10 +17,10 @@ public class AuthServiceImpl implements AuthService {
     private static final String PROFILE_DEFAULT_PATH = "/img/profile_default.jpg";
     private static final String EMAIL_NOT_EXIST_EXCEPTION_MSG = "등록되지 않은 이메일입니다.";
 
-    private AuthRepository authRepository;
+    private UserRepository userRepository;
 
-    public AuthServiceImpl(AuthRepository authRepository){
-        this.authRepository = authRepository;
+    public AuthServiceImpl(UserRepository userRepository){
+        this.userRepository = userRepository;
     }
 
     public User join(RequestUserDto requestUserDto){
@@ -29,14 +29,14 @@ public class AuthServiceImpl implements AuthService {
             throw new AlreadyExistEmailException("This email("+email+") is already exist!");
         }
         settingForSave(requestUserDto);
-        User createdUser = authRepository.save(requestUserDto);
+        User createdUser = userRepository.save(requestUserDto);
         return createdUser;
     }
 
     public User login(LoginUserDto loginUserDto){
         String email = loginUserDto.getEmail();
         String password= loginUserDto.getPassword();
-        User user = authRepository.getUserByEmail(email);
+        User user = userRepository.getUserByEmail(email);
         if( ! passwordChecking(user, password)){
             throw new WrongPasswordException("you have wrong password");
         }
@@ -44,11 +44,11 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public User findByUserId(Long userId){
-        return authRepository.getUserById(userId);
+        return userRepository.getUserById(userId);
     }
 
     private boolean isExist(String email){
-        User user = authRepository.getUserByEmail(email);
+        User user = userRepository.getUserByEmail(email);
 
         if(user == null) return false;
         return true;

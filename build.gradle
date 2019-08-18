@@ -17,6 +17,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.16'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.603'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     compile group: 'org.mindrot', name: 'jbcrypt', version: '0.4'
     compile 'io.jsonwebtoken:jjwt-api:0.10.7'

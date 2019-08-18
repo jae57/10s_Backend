@@ -1,6 +1,7 @@
 package ten.shortclip.chatting;
 
 import org.junit.*;
+import org.springframework.web.bind.annotation.*;
 import ten.shortclip.chatting.exception.*;
 import ten.shortclip.chatting.service.*;
 
@@ -15,10 +16,5 @@ public class AWSS3FileClientTest {
         AWSS3FileClient fileClient = new AWSS3FileClient();
         File file = File.createTempFile("temp", "temp");
         fileClient.upload(roomId, bucket, file);
-    }
-
-    @Test(expected = AWSS3Exception.class)
-    public void 파일_업로드_실패_S3() {
-
     }
 }

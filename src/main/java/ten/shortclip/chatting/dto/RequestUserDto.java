@@ -6,7 +6,6 @@ public class RequestUserDto {
     private String email;
     private String password;
     private String nickname;
-
     @JsonProperty("profile_image")
     private String profileImage;
 

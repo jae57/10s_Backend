@@ -41,7 +41,6 @@ public class JwtServiceImpl implements JwtService {
                     .parseClaimsJws(jws);
             return true;
         }catch(JwtException e){
-            e.printStackTrace();
             throw new UnauthorizedException("JwtServiceImpl.isValid()");
         }
     }

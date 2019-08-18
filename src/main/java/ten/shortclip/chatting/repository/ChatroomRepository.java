@@ -5,10 +5,9 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ten.shortclip.chatting.model.Chatroom;
+import ten.shortclip.chatting.domain.Chatroom;
 
 @Repository
-
 public class ChatroomRepository {
 
     private final JdbcTemplate jdbcTemplate;

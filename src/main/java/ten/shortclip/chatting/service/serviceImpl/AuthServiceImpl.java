@@ -1,8 +1,8 @@
 package ten.shortclip.chatting.service.serviceImpl;
 
 import org.springframework.stereotype.Service;
-import ten.shortclip.chatting.Exception.AlreadyExistEmailException;
-import ten.shortclip.chatting.Exception.WrongPasswordException;
+import ten.shortclip.chatting.exception.AlreadyExistEmailException;
+import ten.shortclip.chatting.exception.WrongPasswordException;
 import ten.shortclip.chatting.dto.LoginUserDto;
 import ten.shortclip.chatting.dto.RequestUserDto;
 import ten.shortclip.chatting.domain.User;

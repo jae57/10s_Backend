@@ -5,7 +5,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import ten.shortclip.chatting.Exception.UnauthorizedException;
+import ten.shortclip.chatting.exception.UnauthorizedException;
 import ten.shortclip.chatting.domain.User;
 import ten.shortclip.chatting.service.JwtService;
 

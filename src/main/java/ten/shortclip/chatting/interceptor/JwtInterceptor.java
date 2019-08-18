@@ -2,7 +2,7 @@ package ten.shortclip.chatting.interceptor;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import ten.shortclip.chatting.Exception.UnauthorizedException;
+import ten.shortclip.chatting.exception.UnauthorizedException;
 import ten.shortclip.chatting.service.JwtService;
 
 import javax.servlet.http.HttpServletRequest;

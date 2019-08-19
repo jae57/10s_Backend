@@ -16,6 +16,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    compile group: 'org.springframework.data', name: 'spring-data-mongodb', version: '2.1.10.RELEASE'
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.16'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.603'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

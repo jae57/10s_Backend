@@ -26,7 +26,8 @@ ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `user`(
 `id` INT(11) NOT NULL AUTO_INCREMENT, 
 `email` TEXT,
-`password` TEXT, 
+`password` TEXT,
+`token` TEXT,
 `nickname` TEXT, 
 `profile_image` TEXT, 
 `status_message` TEXT, 

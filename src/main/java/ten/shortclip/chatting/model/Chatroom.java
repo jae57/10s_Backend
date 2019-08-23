@@ -1,4 +1,4 @@
-package ten.shortclip.chatting.domain;
+package ten.shortclip.chatting.model;
 
 import java.sql.Timestamp;
 

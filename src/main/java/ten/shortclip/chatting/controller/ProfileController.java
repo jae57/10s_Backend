@@ -3,9 +3,12 @@ package ten.shortclip.chatting.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ten.shortclip.chatting.dto.RequestUserProfileDto;
 import ten.shortclip.chatting.dto.UserProfileDto;
 import ten.shortclip.chatting.service.JwtService;
 import ten.shortclip.chatting.service.serviceImpl.ProfileServiceImpl;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -32,9 +35,9 @@ public class ProfileController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> updateProfile(@RequestBody UserProfileDto userProfileDto){
+    public ResponseEntity<Void> updateProfile(@RequestBody RequestUserProfileDto requestUserProfileDto) throws IOException {
         Long userId = jwtService.getUserId();
-        profileService.updateProfile(userId, userProfileDto);
+        profileService.updateProfile(userId, requestUserProfileDto);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

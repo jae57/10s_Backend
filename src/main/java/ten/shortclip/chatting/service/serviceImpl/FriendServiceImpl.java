@@ -3,7 +3,7 @@ package ten.shortclip.chatting.service.serviceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ten.shortclip.chatting.exception.UserNotFoundException;
-import ten.shortclip.chatting.domain.User;
+import ten.shortclip.chatting.model.User;
 import ten.shortclip.chatting.dto.RequestFriendDto;
 import ten.shortclip.chatting.dto.UserProfileDto;
 import ten.shortclip.chatting.repository.UserRepository;

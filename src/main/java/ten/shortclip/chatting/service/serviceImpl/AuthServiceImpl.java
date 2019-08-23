@@ -1,11 +1,12 @@
 package ten.shortclip.chatting.service.serviceImpl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ten.shortclip.chatting.exception.AlreadyExistEmailException;
 import ten.shortclip.chatting.exception.WrongPasswordException;
 import ten.shortclip.chatting.dto.LoginUserDto;
 import ten.shortclip.chatting.dto.RequestUserDto;
-import ten.shortclip.chatting.domain.User;
+import ten.shortclip.chatting.model.User;
 import ten.shortclip.chatting.repository.UserRepository;
 import ten.shortclip.chatting.service.AuthService;
 
@@ -28,8 +29,11 @@ public class AuthServiceImpl implements AuthService {
         if(isExist(email)){
             throw new AlreadyExistEmailException("This email("+email+") is already exist!");
         }
-        settingForSave(requestUserDto);
-        User createdUser = userRepository.save(requestUserDto);
+
+        User requestedUser = new User();
+        settingForSave(requestedUser, requestUserDto);
+
+        User createdUser = userRepository.save(requestedUser);
         return createdUser;
     }
 
@@ -46,6 +50,7 @@ public class AuthServiceImpl implements AuthService {
     public User findByUserId(Long userId){
         return userRepository.getUserById(userId);
     }
+    public User findByUserToken(String authToken) { return userRepository.getUserByToken(authToken); }
 
     private boolean isExist(String email){
         User user = userRepository.getUserByEmail(email);
@@ -54,13 +59,30 @@ public class AuthServiceImpl implements AuthService {
         return true;
     }
 
-    private void settingForSave(RequestUserDto requestUserDto){
-        String password = requestUserDto.getPassword();
-        String encodedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-        requestUserDto.setPassword(encodedPassword);
-        if(requestUserDto.getPassword() == null){
-            requestUserDto.setProfileImage(PROFILE_DEFAULT_PATH);
+    private void settingForSave(User requestedUser, RequestUserDto requestUserDto){
+        // 토큰 or 패스워드
+        String password= requestUserDto.getPassword();
+        String token = requestUserDto.getToken();
+
+        if(password != null){
+            String encodedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+            requestedUser.setPassword(encodedPassword);
         }
+
+        if(token != null) requestedUser.setToken(token);
+
+        // 이메일, 닉네임
+        requestedUser.setEmail(requestUserDto.getEmail());
+        requestedUser.setNickname(requestUserDto.getNickname());
+
+        // 프로필 사진
+        MultipartFile profileImage = requestUserDto.getProfileImage();
+        if(profileImage == null) requestedUser.setProfileImage(PROFILE_DEFAULT_PATH);
+        else{
+            String imageUrl = "";
+            requestedUser.setProfileImage(imageUrl);
+        }
+
     }
 
     private boolean passwordChecking(User user,String password){

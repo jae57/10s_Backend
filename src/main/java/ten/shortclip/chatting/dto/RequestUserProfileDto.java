@@ -3,36 +3,20 @@ package ten.shortclip.chatting.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.web.multipart.MultipartFile;
 
-public class RequestUserDto {
-    private String token;
-    private String email;
-    private String password;
+public class RequestUserProfileDto {
+    private Long id;
     private String nickname;
     @JsonProperty("profile_image")
     private MultipartFile profileImage;
+    @JsonProperty("status_message")
+    private String statusMessage;
 
-    public String getToken() {
-        return token;
+    public Long getId() {
+        return id;
     }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNickname() {
@@ -50,4 +34,13 @@ public class RequestUserDto {
     public void setProfileImage(MultipartFile profileImage) {
         this.profileImage = profileImage;
     }
+
+    public String getStatusMessage() {
+        return statusMessage;
+    }
+
+    public void setStatusMessage(String statusMessage) {
+        this.statusMessage = statusMessage;
+    }
+
 }

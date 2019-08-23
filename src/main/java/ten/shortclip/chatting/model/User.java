@@ -1,4 +1,4 @@
-package ten.shortclip.chatting.domain;
+package ten.shortclip.chatting.model;
 
 import java.sql.Timestamp;
 
@@ -6,6 +6,7 @@ public class User {
     private Long id;
     private String email;
     private String password;
+    private String token;
     private String nickname;
     private String profileImage;
     private String statusMessage;
@@ -34,6 +35,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getNickname() {

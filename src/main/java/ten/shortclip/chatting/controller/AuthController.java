@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ten.shortclip.chatting.dto.LoginUserDto;
 import ten.shortclip.chatting.dto.RequestUserDto;
-import ten.shortclip.chatting.domain.User;
+import ten.shortclip.chatting.model.User;
 import ten.shortclip.chatting.service.AuthService;
 import ten.shortclip.chatting.service.JwtService;
 

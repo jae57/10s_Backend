@@ -6,10 +6,12 @@ import org.joda.time.*;
 import org.springframework.stereotype.*;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import org.springframework.web.multipart.MultipartFile;
 import ten.shortclip.chatting.exception.*;
 import ten.shortclip.chatting.util.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.*;
 import java.security.*;
 import java.util.*;

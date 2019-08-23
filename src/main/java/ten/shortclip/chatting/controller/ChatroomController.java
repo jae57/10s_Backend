@@ -3,7 +3,7 @@ package ten.shortclip.chatting.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ten.shortclip.chatting.domain.Chatroom;
+import ten.shortclip.chatting.model.Chatroom;
 import ten.shortclip.chatting.service.serviceImpl.ChatroomServiceImpl;
 
 import java.util.ArrayList;

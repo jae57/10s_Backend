@@ -8,7 +8,7 @@ import ten.shortclip.chatting.interceptor.JwtInterceptor;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
     private static final String[] EXCLUDE_PATHS = {
-            "/api/auth/join/**", "/api/auth/login/**"
+            "/api/auth/join/**", "/api/auth/login/**", "/"
     };
 
     private JwtInterceptor jwtInterceptor;

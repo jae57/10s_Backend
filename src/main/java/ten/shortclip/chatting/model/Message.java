@@ -11,13 +11,13 @@ public class Message {
     private String content;
     private Long index;
     private Long sender;
-    private Long receiver;
+    private Long roomId;
 
-    public Message(String content, Long index, Long sender, Long receiver) {
+    public Message(String content, Long index, Long sender, Long roomId) {
         this.content = content;
         this.index = index;
         this.sender = sender;
-        this.receiver = receiver;
+        this.roomId = roomId;
     }
 
     public String getId() {
@@ -36,7 +36,7 @@ public class Message {
         return sender;
     }
 
-    public Long getReceiver() {
-        return receiver;
+    public Long getRoomId() {
+        return roomId;
     }
 }

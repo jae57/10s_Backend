@@ -1,9 +1,6 @@
-package ten.shortclip.chatting;
+package ten.shortclip.chatting.service;
 
 import org.junit.*;
-import org.springframework.web.bind.annotation.*;
-import ten.shortclip.chatting.exception.*;
-import ten.shortclip.chatting.service.*;
 
 import java.io.*;
 
@@ -14,7 +11,7 @@ public class AWSS3FileClientTest {
         String roomId = "1";
         String bucket = "10s-voice";
         AWSS3FileClient fileClient = new AWSS3FileClient();
-        File file = File.createTempFile("temp", "temp");
+        File file = File.createTempFile("file", "file");
         fileClient.upload(roomId, bucket, file);
     }
 }

@@ -11,6 +11,7 @@ import ten.shortclip.chatting.service.JwtService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -57,11 +58,12 @@ public class AuthController {
 
     // 최초 로그인
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody LoginUserDto loginUserDto, HttpServletResponse response){
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginUserDto loginUserDto, HttpServletResponse response){
         // 토큰 새로 발급받아야 할 때
         User user = authService.login(loginUserDto);
         String token = jwtService.create("user",user,"member");
-        response.setHeader("Authorization", token);
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+        Map<String, String> auth = new HashMap<>();
+        auth.put("token", token);
+        return ResponseEntity.status(HttpStatus.OK).body(auth);
     }
 }

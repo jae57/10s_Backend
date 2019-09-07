@@ -1,7 +1,6 @@
 package ten.shortclip.chatting.service.serviceImpl;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import ten.shortclip.chatting.exception.AlreadyExistEmailException;
 import ten.shortclip.chatting.exception.WrongPasswordException;
 import ten.shortclip.chatting.dto.LoginUserDto;
@@ -76,7 +75,7 @@ public class AuthServiceImpl implements AuthService {
         requestedUser.setNickname(requestUserDto.getNickname());
 
         // 프로필 사진
-        MultipartFile profileImage = requestUserDto.getProfileImage();
+        String profileImage = requestUserDto.getProfileImage();
         if(profileImage == null) requestedUser.setProfileImage(PROFILE_DEFAULT_PATH);
         else{
             String imageUrl = "";

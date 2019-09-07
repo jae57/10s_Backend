@@ -1,7 +1,6 @@
 package ten.shortclip.chatting.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.web.multipart.MultipartFile;
 
 public class RequestUserDto {
     private String token;
@@ -9,7 +8,7 @@ public class RequestUserDto {
     private String password;
     private String nickname;
     @JsonProperty("profile_image")
-    private MultipartFile profileImage;
+    private String profileImage;
 
     public String getToken() {
         return token;
@@ -43,11 +42,11 @@ public class RequestUserDto {
         this.nickname = nickname;
     }
 
-    public MultipartFile getProfileImage() {
+    public String getProfileImage() {
         return profileImage;
     }
 
-    public void setProfileImage(MultipartFile profileImage) {
+    public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
 }
